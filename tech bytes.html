@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Tech Bytes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="tech bytes.css">
+</head>
+<body class="flex flex-col min-h-screen">
+    <nav class="bg-[#7A8C70] p-4 pixel-border"> <div class="container mx-auto flex justify-between items-center">
+            <a href="#" onclick="showAllNews(); return false;" class="text-2xl pixel-font text-[#000000] rounded-none px-2 py-1">TECH BYTES</a>
+            <button id="mobile-menu-button" class="md:hidden pixel-button">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden fixed inset-0 bg-[#000000] bg-opacity-95 z-50 flex flex-col items-center justify-center space-y-8">
+            <button id="close-mobile-menu" class="absolute top-4 right-4 pixel-button">
+                <i class="fas fa-times"></i>
+            </button>
+            </div>
+    </nav>
+
+    <main class="flex-grow container mx-auto p-6 md:p-8">
+        <section class="mb-12">
+            <h2 class="text-3xl md:text-4xl pixel-font text-center mb-8 text-[#000000]">
+                LATEST NEWS
+            </h2>
+            <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="pixel-card flex justify-center items-center h-48">
+                    <p class="pixel-font text-lg animate-pulse">Loading news...</p>
+                </div>
+            </div>
+            <div id="back-button-container" class="text-center mt-8 hidden">
+                <button id="back-to-all-news-button" class="pixel-button">
+                    Back to All News
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-[#7A8C70] p-6 pixel-border mt-auto"> <div class="container mx-auto text-center md:flex md:justify-between md:items-center">
+            <div class="text-sm md:text-base mb-4 md:mb-0 pixel-font text-[#000000]">
+                &copy; 2025 ALL COPYRIGHT RESERVED
+            </div>
+            <div class="text-sm md:text-base mb-4 md:mb-0 pixel-font text-[#000000]">
+                DEVELOPED BY KLEB DAWIT
+            </div>
+            <div class="flex justify-center space-x-6">
+                <a href="https://twitter.com" target="_blank" class="text-[#000000] hover:text-[#333333] transition-colors text-2xl">
+                    <i class="fab fa-x-twitter"></i> </a>
+                <a href="https://telegram.org" target="_blank" class="text-[#000000] hover:text-[#333333] transition-colors text-2xl">
+                    <i class="fab fa-telegram"></i> </a>
+                <a href="https://reddit.com" target="_blank" class="text-[#000000] hover:text-[#333333] transition-colors text-2xl">
+                    <i class="fab fa-reddit"></i> </a>
+                <a href="https://discord.com" target="_blank" class="text-[#000000] hover:text-[#333333] transition-colors text-2xl">
+                    <i class="fab fa-discord"></i> </a>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="tech bytes.js"></script>
+</body>
+</html>
