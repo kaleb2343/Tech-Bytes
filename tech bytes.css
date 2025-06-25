@@ -67,8 +67,12 @@
         }
 
 
-        /* Responsive adjustments */
+       /* Responsive adjustments */
         @media (max-width: 768px) {
+            /* NEW ADDITION FOR RESPONSIVENESS */
+            .detailed-view {
+                padding: 1.5rem; /* Adjust padding for smaller screens */
+            }
             .pixel-font {
                 font-size: 0.75rem;
             }

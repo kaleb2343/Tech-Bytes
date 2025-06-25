@@ -17,65 +17,80 @@ const placeholderNews = [
     {
         id: 'news-2',
         title: "Quantum Computing Leaps Forward",
-        summary: "A new quantum processor promises exponential leaps in computational power.",
-        detail: "Scientists have announced a significant breakthrough in quantum computing, developing a new processor that can perform calculations exponentially faster than traditional supercomputers. This advancement brings us closer to solving complex problems in fields like materials science, cryptography, and drug discovery. The new quantum chip, developed by 'Quantum Innovations Inc.', utilizes entangled qubits to achieve unparalleled processing speeds, opening doors to previously unimaginable computational feats. Experts predict this could lead to a new era of technological innovation.",
-        url: "#"
-    },
-    {
-        id: 'news-3',
-        title: "Sustainable Energy Grid Achieves Milestone",
-        summary: "A major city now runs entirely on renewable energy, setting a global precedent.",
-        detail: "The city of Greenhaven has officially announced that its entire energy grid is now powered exclusively by renewable sources, marking a historic milestone in the global transition to sustainable energy. Through a combination of massive solar farms, wind turbines, and advanced geothermal plants, Greenhaven has eliminated its reliance on fossil fuels. This achievement demonstrates the feasibility of large-scale renewable energy integration and provides a powerful blueprint for other urban centers worldwide. The project also involved significant investments in smart grid technology and energy storage solutions.",
+        summary: "A new quantum processor promises exponential speed increases for complex calculations.",
+        detail: "Quantum Computing Corp. today announced the successful development of their 'Quasar' processor, featuring 128 stable qubits. This breakthrough significantly addresses the coherence issue that has plagued quantum computing, allowing for more reliable and longer computations. The Quasar processor is expected to unlock new possibilities in drug discovery, material science, and cryptography, solving problems that are currently intractable for even the most powerful supercomputers. Initial benchmarks demonstrate a computational speed-up of several orders of magnitude over classical algorithms for specific tasks.",
         url: "#"
     },
     {
         id: 'news-4',
-        title: "Advances in Virtual Reality for Education",
-        summary: "VR technology is transforming classrooms, offering immersive learning experiences.",
-        detail: "Virtual Reality (VR) technology is rapidly becoming a game-changer in education, offering students immersive and interactive learning experiences previously unimaginable. New VR platforms are allowing students to explore ancient civilizations, conduct virtual science experiments, and dissect virtual organisms in lifelike 3D environments. This hands-on approach is proving to be highly engaging and effective, boosting retention rates and fostering a deeper understanding of complex subjects. Educators are excited about the potential of VR to democratize access to high-quality, experiential learning.",
+        title: "Cybersecurity in the Age of AI",
+        summary: "New AI-powered tools are emerging to combat sophisticated cyber threats, but also pose new risks.",
+        detail: "The arms race in cybersecurity is intensifying with the advent of AI. While AI is being deployed to create highly intelligent defense systems capable of detecting zero-day exploits and polymorphic malware, malicious actors are also leveraging AI to craft more sophisticated phishing attacks and automated hacking tools. Experts warn that the future of cybersecurity will be a constant cat-and-mouse game between defensive and offensive AI systems, requiring continuous innovation and adaptive strategies from organizations to protect their digital assets.",
         url: "#"
     },
     {
         id: 'news-5',
-        title: "Cybersecurity Threats Evolve, New Defenses Emerge",
-        summary: "Researchers are developing adaptive AI-powered defenses against sophisticated cyber attacks.",
-        detail: "As cyber threats grow increasingly sophisticated, cybersecurity experts are racing to develop advanced defenses. A new report highlights the emergence of adaptive, AI-powered cybersecurity systems capable of detecting and neutralizing novel threats in real-time. These systems learn from attack patterns and continuously evolve their defenses, offering a robust shield against ransomware, phishing, and zero-day exploits. The focus is shifting from reactive measures to proactive, intelligent defense mechanisms that can anticipate and mitigate risks before they cause significant damage.",
+        title: "The Rise of Augmented Reality Workspaces",
+        summary: "AR technology is moving beyond entertainment to enhance productivity in professional settings.",
+        detail: "Augmented Reality (AR) is poised to transform how we work, moving from novelties to essential productivity tools. Companies are developing AR headsets and applications that overlay virtual workspaces onto the real world, allowing users to interact with multiple virtual screens, 3D models, and collaborative environments without physical limitations. This promises to reduce desk clutter, improve remote collaboration, and provide immersive data visualization, particularly beneficial for architects, engineers, and designers. Early prototypes are already being tested in corporate environments, showing significant potential for efficiency gains.",
         url: "#"
     },
     {
         id: 'news-6',
-        title: "Space Tourism Takes Off",
-        summary: "Private companies are making space travel a reality for civilians.",
-        detail: "The dream of space tourism is rapidly becoming a reality as private aerospace companies successfully launch civilians into suborbital and even orbital flights. With advanced spacecraft designs and rigorous safety protocols, companies like 'AstraVoyage' and 'Cosmic Adventures' are opening up the final frontier to a new class of explorers. While still exclusive, the industry is projected to grow significantly, potentially leading to more affordable and frequent space travel opportunities in the coming decades. This marks a new era of human exploration beyond Earth.",
+        title: "Future of Personal Robotics",
+        summary: "Robotics is advancing rapidly, with increasingly intelligent and versatile personal assistant robots on the horizon.",
+        detail: "The next generation of personal robots is expected to integrate seamlessly into daily life, performing a wider array of tasks than ever before. Driven by improvements in AI, machine learning, and sensor technology, these robots will be capable of complex household chores, personalized elder care, and even emotional support. Companies like HomeBotics Inc. are developing models with advanced manipulation capabilities and natural language processing, making them more intuitive and adaptable to human needs. Ethical considerations around autonomy and privacy are also a growing area of discussion as these technologies mature.",
         url: "#"
     }
 ];
 
 // Function to display news cards
 function displayNews(newsData) {
-    newsContainer.innerHTML = ''; // Clear previous content
-    newsContainer.classList.remove('detailed-view-active'); // Remove detailed view styling
+    newsContainer.innerHTML = ''; // Clear previous news
+    newsContainer.classList.remove('detailed-view-active'); // Reset grid for multiple cards
     newsContainer.style.display = 'grid'; // Ensure grid display for multiple cards
-    backButtonContainer.classList.add('hidden'); // Hide the back button by default
 
-    newsData.forEach(newsItem => {
-        const newsCard = document.createElement('div');
-        newsCard.id = newsItem.id;
-        newsCard.classList.add('pixel-card', 'p-4', 'md:p-6', 'cursor-pointer', 'hover:bg-[#B7C7A8]', 'transition', 'duration-300');
-        newsCard.innerHTML = `
-            <h3 class="text-xl md:text-2xl pixel-font mb-4">${newsItem.title}</h3>
-            <p class="text-sm md:text-base">${newsItem.summary}</p>
+    if (newsData.length === 0) {
+        newsContainer.innerHTML = `
+            <div class="pixel-card col-span-full text-center">
+                <p class="pixel-font">No news available at the moment.</p>
+            </div>
         `;
-        newsCard.addEventListener('click', () => showNewsDetail(newsItem.id));
+        return;
+    }
+
+    newsData.forEach((item) => {
+        const newsCard = document.createElement('div');
+        newsCard.classList.add('pixel-card');
+        newsCard.id = item.id; // Assign unique ID
+        newsCard.innerHTML = `
+            <h3 class="text-xl md:text-2xl pixel-font mb-4 text-left">${item.title}</h3>
+            <p class="text-base text-left mb-4">${item.summary}</p>
+            <div class="mt-auto text-right">
+                <button class="text-sm pixel-button read-more-button" data-news-id="${item.id}">Read More</button>
+            </div>
+        `;
         newsContainer.appendChild(newsCard);
     });
+
+    // Attach event listeners to all new "Read More" buttons
+    document.querySelectorAll('.read-more-button').forEach(button => {
+        button.addEventListener('click', (event) => {
+            const newsId = event.target.dataset.newsId;
+            showDetailedNews(newsId);
+        });
+    });
+
+    // Hide the back button
+    backButtonContainer.classList.add('hidden');
 }
 
 // Function to show detailed news view
-function showNewsDetail(newsId) {
-    const allNewsCards = newsContainer.querySelectorAll('.pixel-card');
+function showDetailedNews(newsId) {
+    const allNewsCards = document.querySelectorAll('.pixel-card');
     let selectedNewsItem = null;
 
+    // Hide all cards except the selected one
     allNewsCards.forEach(card => {
         if (card.id !== newsId) {
             card.classList.add('hidden');
@@ -83,8 +98,8 @@ function showNewsDetail(newsId) {
             selectedNewsItem = placeholderNews.find(item => item.id === newsId);
             card.classList.add('detailed-view'); // Add styling for bigger view
             card.innerHTML = `
-                <h3 class="text-3xl md:text-4xl pixel-font mb-6 text-left">${selectedNewsItem.title}</h3>
-                <p class="text-lg text-left mb-8">${selectedNewsItem.detail}</p>
+                <h3 class="text-xl md:text-4xl pixel-font mb-6 text-left">${selectedNewsItem.title}</h3>
+                <p class="text-base md:text-lg text-left mb-8">${selectedNewsItem.detail}</p>
                 `;
         }
     });
@@ -105,24 +120,13 @@ function showAllNews() {
 backToAllNewsButton.addEventListener('click', showAllNews);
 
 // Fetch news when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    showAllNews(); // Call showAllNews to display initial placeholder data
+document.addEventListener('DOMContentLoaded', showAllNews); // Call showAllNews to display initial placeholder data
 
-    // Mobile menu event listeners
-    mobileMenuButton.addEventListener('click', () => {
-        mobileMenu.classList.remove('hidden');
-    });
-    closeMobileMenuButton.addEventListener('click', () => {
-        mobileMenu.classList.add('hidden');
-    });
+// Mobile menu event listeners
+mobileMenuButton.addEventListener('click', () => {
+    mobileMenu.classList.remove('hidden');
+});
 
-    // New Go Back link functionality
-    const goBackLink = document.getElementById('go-back-link');
-    if (goBackLink) {
-        goBackLink.addEventListener('click', (event) => {
-            event.preventDefault(); // Prevents the browser from trying to navigate to '#'
-            history.back(); // Navigates to the previous page in the browser's history
-            mobileMenu.classList.add('hidden'); // Close the mobile menu after clicking Go Back
-        });
-    }
+closeMobileMenuButton.addEventListener('click', () => {
+    mobileMenu.classList.add('hidden');
 });
