@@ -5,42 +5,49 @@ const mobileMenu = document.getElementById('mobile-menu');
 const backButtonContainer = document.getElementById('back-button-container');
 const backToAllNewsButton = document.getElementById('back-to-all-news-button');
 
-// Placeholder news data with expanded detail
+// Placeholder news data
 const placeholderNews = [
     {
-        id: 'news-1',
-        title: "AI Breakthrough in Healthcare",
-        summary: "Researchers have developed a new AI model that significantly improves early disease detection.",
-        detail: "In a groundbreaking development, scientists at Nexus Labs have unveiled an advanced AI algorithm capable of identifying subtle biomarkers for several chronic diseases with unprecedented accuracy. This new model, named 'HealthPredict AI', leverages deep learning techniques to analyze vast datasets of patient records, medical images, and genetic information. Early trials show a 95% success rate in detecting conditions like early-stage cancer and neurodegenerative disorders years before conventional diagnostic methods. This could revolutionize preventative medicine and personalized treatment plans.",
-        url: "#"
+        id: '1',
+        title: 'Quantum Computing Breakthrough Unlocked',
+        summary: 'Scientists at CERN announce a major leap in quantum entanglement, promising revolutionary changes.',
+        detail: 'In a groundbreaking experiment conducted deep underground, researchers have successfully maintained quantum entanglement across unprecedented distances, opening doors for ultra-secure communication and powerful new computing paradigms. The implications for cryptography and AI are immense, potentially rendering current security protocols obsolete and accelerating machine learning algorithms to unimaginable speeds. Experts are calling this a "paradigm shift" in the field.',
+        url: 'https://example.com/quantum-computing'
     },
     {
-        id: 'news-2',
-        title: "Quantum Computing Leaps Forward",
-        summary: "A new quantum processor promises exponential speed increases for complex calculations.",
-        detail: "Quantum Computing Corp. today announced the successful development of their 'Quasar' processor, featuring 128 stable qubits. This breakthrough significantly addresses the coherence issue that has plagued quantum computing, allowing for more reliable and longer computations. The Quasar processor is expected to unlock new possibilities in drug discovery, material science, and cryptography, solving problems that are currently intractable for even the most powerful supercomputers. Initial benchmarks demonstrate a computational speed-up of several orders of magnitude over classical algorithms for specific tasks.",
-        url: "#"
+        id: '2',
+        title: 'AI Ethics Debate Heats Up in Senate Hearing',
+        summary: 'Lawmakers question leading AI developers on the moral implications of advanced artificial intelligence.',
+        detail: 'A heated debate unfolded on Capitol Hill today as senators grilled top executives from major AI development firms. Discussions centered on the potential for job displacement, bias in algorithms, and the long-term societal impact of increasingly autonomous AI systems. Advocates stressed the need for robust regulatory frameworks, while developers urged for flexibility to foster innovation. No concrete legislation was proposed, but the discussion highlighted growing concerns.',
+        url: 'https://example.com/ai-ethics'
     },
     {
-        id: 'news-4',
-        title: "Cybersecurity in the Age of AI",
-        summary: "New AI-powered tools are emerging to combat sophisticated cyber threats, but also pose new risks.",
-        detail: "The arms race in cybersecurity is intensifying with the advent of AI. While AI is being deployed to create highly intelligent defense systems capable of detecting zero-day exploits and polymorphic malware, malicious actors are also leveraging AI to craft more sophisticated phishing attacks and automated hacking tools. Experts warn that the future of cybersecurity will be a constant cat-and-mouse game between defensive and offensive AI systems, requiring continuous innovation and adaptive strategies from organizations to protect their digital assets.",
-        url: "#"
+        id: '3',
+        title: 'New Wearable Tech Monitors Health in Real-Time',
+        summary: 'A startup unveils a discreet device capable of continuously tracking vital signs with clinical accuracy.',
+        detail: 'Health tech is taking a giant leap forward with the introduction of "Bio-Band," a revolutionary new wearable that offers continuous, clinical-grade monitoring of heart rate, blood pressure, oxygen saturation, and even glucose levels. Designed to be unobtrusive, the device seamlessly integrates into daily life, providing early warnings for potential health issues and empowering individuals with unprecedented insight into their well-being. Pilot programs are set to begin next quarter.',
+        url: 'https://example.com/wearable-tech'
     },
     {
-        id: 'news-5',
-        title: "The Rise of Augmented Reality Workspaces",
-        summary: "AR technology is moving beyond entertainment to enhance productivity in professional settings.",
-        detail: "Augmented Reality (AR) is poised to transform how we work, moving from novelties to essential productivity tools. Companies are developing AR headsets and applications that overlay virtual workspaces onto the real world, allowing users to interact with multiple virtual screens, 3D models, and collaborative environments without physical limitations. This promises to reduce desk clutter, improve remote collaboration, and provide immersive data visualization, particularly beneficial for architects, engineers, and designers. Early prototypes are already being tested in corporate environments, showing significant potential for efficiency gains.",
-        url: "#"
+        id: '4',
+        title: 'Next-Gen Batteries Promise Longer EV Range',
+        summary: 'Breakthrough in solid-state battery technology could double electric vehicle driving distances.',
+        detail: 'Engineers have announced a significant advancement in solid-state battery technology, promising to dramatically increase the range and reduce charging times for electric vehicles. The new prototypes demonstrate higher energy density and improved safety compared to current lithium-ion batteries. This innovation could eliminate range anxiety, making EVs a more viable option for long-distance travel and accelerating the global transition to sustainable transportation.',
+        url: 'https://example.com/ev-batteries'
     },
     {
-        id: 'news-6',
-        title: "Future of Personal Robotics",
-        summary: "Robotics is advancing rapidly, with increasingly intelligent and versatile personal assistant robots on the horizon.",
-        detail: "The next generation of personal robots is expected to integrate seamlessly into daily life, performing a wider array of tasks than ever before. Driven by improvements in AI, machine learning, and sensor technology, these robots will be capable of complex household chores, personalized elder care, and even emotional support. Companies like HomeBotics Inc. are developing models with advanced manipulation capabilities and natural language processing, making them more intuitive and adaptable to human needs. Ethical considerations around autonomy and privacy are also a growing area of discussion as these technologies mature.",
-        url: "#"
+        id: '5',
+        title: 'Cybersecurity Firm Detects Global Ransomware Attack',
+        summary: 'A new strain of ransomware is rapidly spreading worldwide, targeting critical infrastructure.',
+        detail: 'A sophisticated new ransomware variant, dubbed "ShadowLock," has been detected spreading across global networks, primarily targeting healthcare facilities and utility providers. Cybersecurity experts are working tirelessly to develop a decryption key, urging organizations to immediately implement robust backup strategies and offline data storage. The attack underscores the escalating threat of cyber warfare and the urgent need for enhanced digital defenses.',
+        url: 'https://example.com/cybersecurity'
+    },
+    {
+        id: '6',
+        title: 'Space Tourism Takes Off with First Commercial Flight',
+        summary: 'A private company successfully launches its first group of tourists into sub-orbital space.',
+        detail: 'The era of space tourism has officially begun as "AstraVoyage" successfully completed its inaugural commercial sub-orbital flight, carrying four private citizens to the edge of space. Passengers experienced breathtaking views of Earth and several minutes of weightlessness before returning safely. While tickets remain prohibitively expensive, the success marks a pivotal moment for commercial space travel, promising a future where space is accessible to more than just astronauts.',
+        url: 'https://example.com/space-tourism'
     }
 ];
 
@@ -77,7 +84,7 @@ function displayNews(newsData) {
     document.querySelectorAll('.read-more-button').forEach(button => {
         button.addEventListener('click', (event) => {
             const newsId = event.target.dataset.newsId;
-            showDetailedNews(newsId);
+            showDetailedNews(newsId, newsData); // Pass newsData to find selected item
         });
     });
 
@@ -85,22 +92,34 @@ function displayNews(newsData) {
     backButtonContainer.classList.add('hidden');
 }
 
+// Global variable to store fetched news data
+let currentFetchedNews = placeholderNews; // Initialize with placeholder data
+
 // Function to show detailed news view
-function showDetailedNews(newsId) {
+// Now takes newsData as argument to find the selected item
+function showDetailedNews(newsId, currentNewsData) {
     const allNewsCards = document.querySelectorAll('.pixel-card');
     let selectedNewsItem = null;
+
+    // Find the selected item from the current news data
+    selectedNewsItem = currentNewsData.find(item => item.id === newsId);
+
+    if (!selectedNewsItem) {
+        console.error("News item not found for ID:", newsId);
+        return;
+    }
 
     // Hide all cards except the selected one
     allNewsCards.forEach(card => {
         if (card.id !== newsId) {
             card.classList.add('hidden');
         } else {
-            selectedNewsItem = placeholderNews.find(item => item.id === newsId);
             card.classList.add('detailed-view'); // Add styling for bigger view
             card.innerHTML = `
                 <h3 class="text-xl md:text-4xl pixel-font mb-6 text-left">${selectedNewsItem.title}</h3>
                 <p class="text-base md:text-lg text-left mb-8">${selectedNewsItem.detail}</p>
-                `;
+                <a href="${selectedNewsItem.url}" target="_blank" class="pixel-button">Read Full Article</a>
+            `;
         }
     });
 
@@ -112,21 +131,23 @@ function showDetailedNews(newsId) {
 }
 
 // Function to go back to all news cards
-function showAllNews() {
-    displayNews(placeholderNews); // Re-display all cards
+async function showAllNews() {
+    displayNews(currentFetchedNews); // Re-display all cards from cached data
 }
 
 // Event listener for the "Back to All News" button
 backToAllNewsButton.addEventListener('click', showAllNews);
 
-// Fetch news when the page loads
-document.addEventListener('DOMContentLoaded', showAllNews); // Call showAllNews to display initial placeholder data
+// Initial display of news when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    displayNews(placeholderNews); // Display placeholder news initially
+});
 
 // Mobile menu event listeners
 mobileMenuButton.addEventListener('click', () => {
     mobileMenu.classList.remove('hidden');
 });
 
-closeMobileMenuButton.addEventListener('click', () => {
+closeMobileMenuMenuButton.addEventListener('click', () => { // Typo here: closeMobileMenuMenuButton
     mobileMenu.classList.add('hidden');
 });
