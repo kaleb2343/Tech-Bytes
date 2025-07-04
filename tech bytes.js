@@ -115,7 +115,11 @@ function showDetailedNews(newsId, currentNewsData) {
             card.classList.add('hidden');
         } else {
             card.classList.add('detailed-view'); // Add styling for bigger view
-            
+            card.innerHTML = `
+                <h3 class="text-xl md:text-4xl pixel-font mb-6 text-left">${selectedNewsItem.title}</h3>
+                <p class="text-base md:text-lg text-left mb-8">${selectedNewsItem.detail}</p>
+                <a href="${selectedNewsItem.url}" target="_blank" class="pixel-button">Read Full Article</a>
+            `;
         }
     });
 
@@ -144,6 +148,6 @@ mobileMenuButton.addEventListener('click', () => {
     mobileMenu.classList.remove('hidden');
 });
 
-closeMobileMenuMenuButton.addEventListener('click', () => { // Typo here: closeMobileMenuMenuButton
+closeMobileMenuButton.addEventListener('click', () => {
     mobileMenu.classList.add('hidden');
 });
