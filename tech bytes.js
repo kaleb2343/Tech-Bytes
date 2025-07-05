@@ -1,11 +1,8 @@
 const newsContainer = document.getElementById('news-container');
-const mobileMenuButton = document.getElementById('mobile-menu-button');
-const closeMobileMenuButton = document.getElementById('close-mobile-menu');
-const mobileMenu = document.getElementById('mobile-menu');
 const backButtonContainer = document.getElementById('back-button-container');
 const backToAllNewsButton = document.getElementById('back-to-all-news-button');
 
-// Placeholder news data
+// Placeholder news data (we will replace this with fetched data)
 const placeholderNews = [
     {
         id: '1',
@@ -74,7 +71,8 @@ function displayNews(newsData) {
             <h3 class="text-xl md:text-2xl pixel-font mb-4 text-left">${item.title}</h3>
             <p class="text-base text-left mb-4">${item.summary}</p>
             <div class="mt-auto text-right">
-                <button class="text-sm pixel-button read-more-button" data-news-id="${item.id}">Read More</button>
+                <!-- Changed data-news-id to data-news-url to directly pass the URL -->
+                <button class="text-sm pixel-button read-more-button" data-news-url="${item.url}">Read More</button>
             </div>
         `;
         newsContainer.appendChild(newsCard);
@@ -83,8 +81,9 @@ function displayNews(newsData) {
     // Attach event listeners to all new "Read More" buttons
     document.querySelectorAll('.read-more-button').forEach(button => {
         button.addEventListener('click', (event) => {
-            const newsId = event.target.dataset.newsId;
-            showDetailedNews(newsId, newsData); // Pass newsData to find selected item
+            const newsUrl = event.target.dataset.newsUrl; // Get the URL from the button's data attribute
+            window.open(newsUrl, '_blank'); // Open the URL in a new tab
+            // Removed the call to showDetailedNews as per the new requirement
         });
     });
 
@@ -95,13 +94,11 @@ function displayNews(newsData) {
 // Global variable to store fetched news data
 let currentFetchedNews = placeholderNews; // Initialize with placeholder data
 
-// Function to show detailed news view
-// Now takes newsData as argument to find the selected item
+// Function to show detailed news view (This function is no longer called by "Read More" button)
 function showDetailedNews(newsId, currentNewsData) {
     const allNewsCards = document.querySelectorAll('.pixel-card');
     let selectedNewsItem = null;
 
-    // Find the selected item from the current news data
     selectedNewsItem = currentNewsData.find(item => item.id === newsId);
 
     if (!selectedNewsItem) {
@@ -109,7 +106,6 @@ function showDetailedNews(newsId, currentNewsData) {
         return;
     }
 
-    // Hide all cards except the selected one
     allNewsCards.forEach(card => {
         if (card.id !== newsId) {
             card.classList.add('hidden');
@@ -118,7 +114,7 @@ function showDetailedNews(newsId, currentNewsData) {
             card.innerHTML = `
                 <h3 class="text-xl md:text-4xl pixel-font mb-6 text-left">${selectedNewsItem.title}</h3>
                 <p class="text-base md:text-lg text-left mb-8">${selectedNewsItem.detail}</p>
-            `; // Removed the "Read Full Article" button here
+            `;
         }
     });
 
@@ -137,16 +133,48 @@ async function showAllNews() {
 // Event listener for the "Back to All News" button
 backToAllNewsButton.addEventListener('click', showAllNews);
 
+// --- UPDATED CODE HERE FOR FETCHING NEWS ---
+async function fetchNews() {
+    // Use a global variable for the API key if it's provided by the environment
+    // Otherwise, default to a placeholder (or your hardcoded key for local testing)
+    const API_KEY = typeof __api_key !== 'undefined' ? __api_key : '6b0b595e45c948c480b4cd0cbf25501d';
+    const NEWS_URL = `https://newsapi.org/v2/top-headlines?country=us&category=technology&pageSize=10&apiKey=${API_KEY}`;
+
+    try {
+        const response = await fetch(NEWS_URL);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        const fetchedNews = data.articles.map((article, index) => {
+            // Clean up the 'detail' content by removing the '[+XXX chars]' pattern
+            let cleanedDetail = article.content || article.description || 'No detailed content available.';
+            // This regular expression looks for '[+' followed by numbers, then ' chars]' at the end of the string.
+            cleanedDetail = cleanedDetail.replace(/\[\+\d+ chars\]$/, '');
+
+            return {
+                id: `news-${index}`, // Create a unique ID
+                title: article.title || 'No Title',
+                summary: article.description || 'No summary available.',
+                detail: cleanedDetail, // Use the cleaned detail
+                url: article.url || '#'
+            };
+        });
+
+        currentFetchedNews = fetchedNews; // Store the fetched news
+        displayNews(currentFetchedNews); // Display the fetched news
+    } catch (error) {
+        console.error('Could not fetch news:', error);
+        displayNews(placeholderNews); // Fallback to placeholder news on error
+    }
+}
+
 // Initial display of news when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    displayNews(placeholderNews); // Display placeholder news initially
-});
+    fetchNews(); // Call the new function to fetch and display news
 
-// Mobile menu event listeners
-mobileMenuButton.addEventListener('click', () => {
-    mobileMenu.classList.remove('hidden');
-});
-
-closeMobileMenuButton.addEventListener('click', () => {
-    mobileMenu.classList.add('hidden');
+    // Set up a timer to fetch news every 5 minutes (300000 milliseconds)
+    // You can adjust the time (e.g., 60000 for 1 minute, 300000 for 5 minutes, 900000 for 15 minutes)
+    setInterval(fetchNews, 300000); // Fetches news every 5 minutes
 });

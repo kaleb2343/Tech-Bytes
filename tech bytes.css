@@ -54,6 +54,11 @@
             padding: 1.5rem;
             margin-bottom: 1.5rem;
             height: auto; /* Allow height to adjust for content */
+            overflow: visible; /* Ensure content is not hidden by card itself */
+            display: flex; /* Make the card a flex container */
+            flex-direction: column; /* Stack items vertically */
+            justify-content: space-between; /* Distribute space between items (pushes last item to bottom) */
+            /* Removed fixed height and min-height to allow dynamic sizing */
         }
 
         .pixel-card h3 {
@@ -64,6 +69,12 @@
             font-family: 'Inter', sans-serif; /* Changed for better readability in summaries */
             color: #000000; /* Black text for card content */
             text-align: left; /* Adjust text alignment for readability within cards */
+            flex-grow: 1; /* Allow paragraph to take available space and push button down */
+            overflow: hidden; /* Hide overflowing text within the paragraph */
+            text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+            display: -webkit-box; /* For multi-line ellipsis */
+            -webkit-line-clamp: 4; /* Limit to 4 lines before ellipsis (adjust as needed) */
+            -webkit-box-orient: vertical; /* For multi-line ellipsis */
         }
 
 
@@ -78,6 +89,7 @@
             }
             .pixel-card {
                 padding: 1rem;
+                /* Removed fixed height for mobile as well */
             }
             .main-content {
                 flex-direction: column;
