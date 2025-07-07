@@ -137,7 +137,7 @@ backToAllNewsButton.addEventListener('click', showAllNews);
 async function fetchNews() {
     // Use a global variable for the API key if it's provided by the environment
     // Otherwise, default to a placeholder (or your hardcoded key for local testing)
-    const API_KEY = typeof __api_key !== 'undefined' ? __api_key : '6b0b595e45c948c480b4cd0cbf25501d';
+    const API_KEY = typeof API_KEY !== 'undefined' ? API_KEY : '6b0b595e45c948c480b4cd0cbf25501d';
     const NEWS_URL = `https://newsapi.org/v2/top-headlines?country=us&category=technology&pageSize=10&apiKey=${API_KEY}`;
 
     try {
