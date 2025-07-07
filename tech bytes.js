@@ -71,7 +71,6 @@ function displayNews(newsData) {
             <h3 class="text-xl md:text-2xl pixel-font mb-4 text-left">${item.title}</h3>
             <p class="text-base text-left mb-4">${item.summary}</p>
             <div class="mt-auto text-right">
-                <!-- Changed data-news-id to data-news-url to directly pass the URL -->
                 <button class="text-sm pixel-button read-more-button" data-news-url="${item.url}">Read More</button>
             </div>
         `;
@@ -135,16 +134,17 @@ backToAllNewsButton.addEventListener('click', showAllNews);
 
 // --- UPDATED CODE HERE FOR FETCHING NEWS ---
 async function fetchNews() {
-    // Use a global variable for the API key if it's provided by the environment
-    // Otherwise, default to a placeholder (or your hardcoded key for local testing)
-   const API_KEY = '__NEWS_API_KEY__';
-    const NEWS_URL = `https://newsapi.org/v2/top-headlines?country=us&category=technology&pageSize=10&apiKey=${API_KEY}`;
+    // This function now calls your Netlify Function
+    const NEWS_URL = '/.netlify/functions/fetch-news'; // This is the path to your Netlify Function
 
     try {
         const response = await fetch(NEWS_URL);
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // If the function itself returned an error status (e.g., 500 from the function)
+            // Or if NewsAPI returned an error that the function passed through (e.g., 426)
+            const errorData = await response.json(); // Try to parse error message from function
+            throw new Error(`Error from Netlify Function: ${errorData.error || response.statusText}`);
         }
         const data = await response.json();
         const fetchedNews = data.articles.map((article, index) => {
@@ -171,7 +171,7 @@ async function fetchNews() {
 }
 
 // Initial display of news when the page loads
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => { 
     fetchNews(); // Call the new function to fetch and display news
 
     // Set up a timer to fetch news every 5 minutes (300000 milliseconds)
