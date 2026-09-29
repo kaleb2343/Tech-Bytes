@@ -1,4 +1,4 @@
-// Tech Bytes - main script (step 3: category filters)
+// Tech Bytes - main script (step 3: category filters with pixel icons)
 
 const newsContainer = document.getElementById('news-container');
 const filterBar = document.getElementById('filter-bar');
@@ -54,6 +54,30 @@ const CATEGORY_KEYWORDS = {
 // Some sources always belong to one category
 const SECURITY_SOURCES = ['bleepingcomputer', 'thehackernews'];
 const SOURCE_DEFAULT = { pcgamer: 'GAMING', tomshardware: 'GADGETS' };
+
+// Little pixel icons for the filter buttons (# = black pixel, 12 pixels wide)
+const CATEGORY_ICONS = {
+    ALL: [
+        '............', '.####..####.', '.####..####.', '.####..####.', '.####..####.', '............',
+        '............', '.####..####.', '.####..####.', '.####..####.', '.####..####.', '............',
+    ],
+    AI: [
+        '.....##.....', '.....##.....', '..########..', '.##########.', '###..##..###',
+        '###..##..###', '.##########.', '.##.####.##.', '.##########.', '..########..',
+    ],
+    GAMING: [
+        '..########..', '.##########.', '###.########', '##...###.#.#', '###.########',
+        '.####..####.', '.###....###.',
+    ],
+    GADGETS: [
+        '...######...', '...#....#...', '...#....#...', '...#....#...', '...#....#...', '...#....#...',
+        '...#....#...', '...#....#...', '...#....#...', '...######...', '...##..##...', '...######...',
+    ],
+    SECURITY: [
+        '.##########.', '.##########.', '.####..####.', '.###....###.', '.####..####.',
+        '.####..####.', '..########..', '...######...', '....####....', '.....##.....',
+    ],
+};
 
 const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -178,10 +202,7 @@ function renderNews(newsData) {
         card.style.setProperty('--i', index);
 
         const meta = el('div', 'card-meta');
-        const tags = el('div', 'card-tags');
-        tags.appendChild(el('span', 'source-tag', item.source || 'TECH'));
-        tags.appendChild(el('span', 'category-tag', item.category));
-        meta.appendChild(tags);
+        meta.appendChild(el('span', 'category-tag', item.category));
         meta.appendChild(el('span', 'time-ago', item.time));
         card.appendChild(meta);
 
@@ -191,7 +212,8 @@ function renderNews(newsData) {
             card.appendChild(el('p', 'text-base text-left mb-4', item.summary));
         }
 
-        const footer = el('div', 'mt-auto text-right');
+        const footer = el('div', 'card-footer mt-auto');
+        footer.appendChild(el('span', 'card-source', item.source ? `VIA ${item.source}` : ''));
         const button = el('button', 'text-sm pixel-button read-more-button', 'Read More');
         button.dataset.newsUrl = item.url;
         footer.appendChild(button);
@@ -201,9 +223,35 @@ function renderNews(newsData) {
     });
 }
 
-// The row of category buttons (ALL, AI, GAMING...) with a count on each
+// Draws one pixel icon (colored by the button's text color)
+function makeIcon(category) {
+    const ns = 'http://www.w3.org/2000/svg';
+    const rows = CATEGORY_ICONS[category];
+    const offset = Math.floor((12 - rows.length) / 2);
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 12 12');
+    svg.setAttribute('class', 'filter-icon');
+    svg.setAttribute('shape-rendering', 'crispEdges');
+    svg.setAttribute('aria-hidden', 'true');
+    rows.forEach((row, y) => {
+        for (let x = 0; x < row.length; x++) {
+            if (row[x] !== '#') continue;
+            const rect = document.createElementNS(ns, 'rect');
+            rect.setAttribute('x', x);
+            rect.setAttribute('y', y + offset);
+            rect.setAttribute('width', 1);
+            rect.setAttribute('height', 1);
+            rect.setAttribute('fill', 'currentColor');
+            svg.appendChild(rect);
+        }
+    });
+    return svg;
+}
+
+// The row of category buttons (ALL, AI, GAMING...) with an icon and a count on each
 function renderFilterBar() {
     filterBar.innerHTML = '';
+    filterBar.appendChild(el('p', 'filter-label', 'Select channel'));
 
     ['ALL', ...CATEGORY_ORDER].forEach((category) => {
         const count =
@@ -217,7 +265,8 @@ function renderFilterBar() {
         button.type = 'button';
         button.dataset.category = category;
         button.setAttribute('aria-pressed', String(isActive));
-        button.appendChild(document.createTextNode(category));
+        button.appendChild(makeIcon(category));
+        button.appendChild(el('span', 'filter-name', category));
         button.appendChild(el('span', 'filter-count', String(count)));
         filterBar.appendChild(button);
     });
