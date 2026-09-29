@@ -1,4 +1,110 @@
-/* ===== STEP 2: cleanup and life (paste at the very bottom of tech bytes.css) ===== */
+/* Custom styles for Nokia-like monochrome pixelated look (brighter version) */
+body {
+    font-family: 'Inter', sans-serif; /* Changed for better readability */
+    background-color: #8CA17C; /* Brighter muted green background */
+    color: #000000; /* Black text */
+    image-rendering: pixelated; /* Ensure pixelation for all elements */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.pixel-font {
+    font-family: 'Press Start 2P', cursive; /* Keeping this for titles/buttons for strong pixel effect */
+    text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.25); /* Pixel drop shadow */
+    text-transform: uppercase; /* All uppercase for consistency */
+    letter-spacing: 0; /* No extra letter spacing */
+    text-align: center; /* Center alignment for titles */
+}
+
+.pixel-border {
+    border: 2px solid #000000; /* Black border */
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.25); /* Pixel drop shadow */
+}
+
+.pixel-button {
+    background-color: #000000; /* Black background */
+    color: #D0E0C0; /* Brighter green text */
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-radius: 0; /* No rounded corners */
+    font-weight: bold;
+    font-size: 0.875rem; /* text-sm */
+    border: 1px solid #000000; /* Subtle border for button */
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.25); /* Pixel drop shadow */
+    transition: all 0.05s ease-in-out;
+    font-family: 'Press Start 2P', cursive;
+    text-transform: uppercase;
+}
+
+.pixel-button:hover {
+    background-color: #333333; /* Slightly lighter black on hover */
+    color: #E0F0D0; /* Even brighter green on hover */
+    transform: translate(0px, 0px); /* No movement on hover */
+    box-shadow: none; /* No shadow on hover to simulate press */
+}
+
+.pixel-card {
+    background-color: #8CA17C; /* Brighter muted green for card background (matches body) */
+    border: 2px solid #000000; /* Black border */
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.25); /* Pixel drop shadow */
+    border-radius: 0; /* Sharp corners */
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    height: auto; /* Allow height to adjust for content */
+    overflow: visible; /* Ensure content is not hidden by card itself */
+    display: flex; /* Make the card a flex container */
+    flex-direction: column; /* Stack items vertically */
+    justify-content: space-between; /* Distribute space between items (pushes last item to bottom) */
+}
+
+.pixel-card h3 {
+    color: #000000; /* Black text for card content */
+    text-align: left; /* Adjust text alignment for readability within cards */
+}
+
+.pixel-card p {
+    font-family: 'Inter', sans-serif; /* Changed for better readability in summaries */
+    color: #000000; /* Black text for card content */
+    text-align: left; /* Adjust text alignment for readability within cards */
+    flex-grow: 1; /* Allow paragraph to take available space and push button down */
+    overflow: hidden; /* Hide overflowing text within the paragraph */
+    text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+    display: -webkit-box; /* For multi-line ellipsis */
+    -webkit-line-clamp: 4; /* Limit to 4 lines before ellipsis (adjust as needed) */
+    line-clamp: 4; /* Standard property for compatibility */
+    -webkit-box-orient: vertical; /* For multi-line ellipsis */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .detailed-view {
+        padding: 1.5rem; /* Adjust padding for smaller screens */
+    }
+    .pixel-font {
+        font-size: 0.75rem;
+    }
+    .pixel-card {
+        padding: 1rem;
+    }
+    .main-content {
+        flex-direction: column;
+    }
+}
+
+/* Styling for the detailed news view */
+.detailed-view {
+    grid-column: 1 / -1; /* Make it span all columns */
+    max-width: 800px; /* Constrain width for readability */
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2.5rem; /* More padding for bigger look */
+}
+
+
+/* ===== STEP 2: cleanup and life ===== */
 
 /* News cards: flicker in like an old screen, lift with a hard shadow on hover */
 .news-card {
@@ -75,4 +181,4 @@
     .news-card {
         transition: none;
     }
-} 
+}
