@@ -86,7 +86,7 @@ function isBlocked(article) {
 function prepareArticles(articles) {
     return articles
         .filter((a) => a && a.title && a.url && /^https?:\/\//i.test(a.url))
-        .filter((a) => !isBlocked(a))
+        .filter((a) => !isBlocked(a) && !/\/forums?\//i.test(a.url))
         .map((a, index) => {
             const source = (a.source && a.source.name) || '';
             const title = cleanTitle(a.title, source);
