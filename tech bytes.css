@@ -213,3 +213,73 @@ body {
         text-shadow: none;
     }
 }
+
+/* ===== STEP 3: category filters ===== */
+
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.filter-bar[hidden] {
+    display: none;
+}
+
+.filter-button {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    padding: 0.7rem 0.9rem;
+    background-color: transparent;
+    color: #000000;
+    border: 2px solid #000000;
+    border-radius: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: background-color 0.08s steps(2), color 0.08s steps(2);
+}
+
+.filter-button:hover {
+    background-color: #7A8C70;
+}
+
+.filter-button.is-active {
+    background-color: #000000;
+    color: #D0E0C0;
+}
+
+.filter-button:focus-visible {
+    outline: 3px solid #000000;
+    outline-offset: 2px;
+}
+
+.filter-count {
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+/* Category tag sits next to the source tag on each card */
+.card-meta {
+    align-items: flex-start;
+}
+
+.card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.category-tag {
+    border: 2px solid #000000;
+    color: #000000;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.55rem;
+    padding: 0.25rem 0.45rem;
+    text-transform: uppercase;
+}

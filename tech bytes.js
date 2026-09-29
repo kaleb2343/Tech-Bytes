@@ -1,6 +1,7 @@
-// Tech Bytes - main script (step 2: cleanup and life)
+// Tech Bytes - main script (step 3: category filters)
 
 const newsContainer = document.getElementById('news-container');
+const filterBar = document.getElementById('filter-bar');
 
 const NEWS_URL = '/.netlify/functions/fetch-news';
 const REFRESH_MS = 30 * 60 * 1000; // matches the 30 minute cache in the Netlify function
@@ -17,7 +18,62 @@ const BLOCKED_WORDS = [
     'box office',
 ];
 
+/* ---------- categories ----------
+   Every story is checked against these word lists (headline + summary).
+   The first category that matches wins, in this order: SECURITY, AI, GAMING, GADGETS.
+   A story that matches NOTHING is dropped, so the site stays 100% tech.
+   To let more stories in, just add words to a list. Plurals (hack -> hacks) work automatically. */
+const CATEGORY_ORDER = ['SECURITY', 'AI', 'GAMING', 'GADGETS'];
+
+const CATEGORY_KEYWORDS = {
+    SECURITY: [
+        'hack', 'hacker', 'hacking', 'hacked', 'ransomware', 'malware', 'botnet', 'spyware',
+        'phishing', 'breach', 'breached', 'vulnerability', 'vulnerabilities', 'exploit',
+        'exploited', 'cyberattack', 'cybersecurity', 'zero-day', 'security flaw', 'flaw',
+        'data leak', 'misconfigured', 'expose', 'exposed', 'exposing',
+    ],
+    AI: [
+        'ai', 'artificial intelligence', 'openai', 'anthropic', 'chatgpt', 'gemini', 'claude',
+        'deepseek', 'llm', 'chatbot', 'copilot', 'generative', 'machine learning', 'neural',
+    ],
+    GAMING: [
+        'game', 'gaming', 'gamer', 'video game', 'playstation', 'ps5', 'ps4', 'xbox',
+        'nintendo', 'steam deck', 'esports', 'fortnite', 'twitch', 'dlss', 'emulator',
+        'console', 'rog ally', 'handheld', 'minecraft',
+    ],
+    GADGETS: [
+        'iphone', 'ipad', 'macbook', 'airpods', 'apple watch', 'ios', 'macos', 'android',
+        'pixel', 'galaxy', 'samsung', 'laptop', 'smartphone', 'phone', 'headphone', 'earbud',
+        'wearable', 'smartwatch', 'smart glasses', 'keyboard', 'monitor', 'gpu', 'cpu',
+        'processor', 'motherboard', 'ssd', 'tablet', 'e-reader', 'headset', 'router',
+        'foldable', 'accessory', 'accessories', 'magsafe', 'charger', 'gadget', 'nvidia',
+        'amd', 'intel', 'qualcomm', 'speaker', 'camera', 'drone',
+    ],
+};
+
+// Some sources always belong to one category
+const SECURITY_SOURCES = ['bleepingcomputer', 'thehackernews'];
+const SOURCE_DEFAULT = { pcgamer: 'GAMING', tomshardware: 'GADGETS' };
+
+const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const CATEGORY_PATTERNS = {};
+CATEGORY_ORDER.forEach((category) => {
+    const words = CATEGORY_KEYWORDS[category].map(escapeRegex).join('|');
+    CATEGORY_PATTERNS[category] = new RegExp(`\\b(?:${words})(?:s|es)?\\b`, 'i');
+});
+
+function categorize(text, sourceName) {
+    const source = (sourceName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (SECURITY_SOURCES.includes(source)) return 'SECURITY';
+    for (const category of CATEGORY_ORDER) {
+        if (CATEGORY_PATTERNS[category].test(text)) return category;
+    }
+    return SOURCE_DEFAULT[source] || null;
+}
+
 let currentNews = [];
+let activeCategory = 'ALL';
 let hasRendered = false;
 let isLoading = false;
 
@@ -82,7 +138,7 @@ function isBlocked(article) {
     return BLOCKED_WORDS.some((word) => text.includes(word));
 }
 
-// Raw API articles -> clean objects the cards can use
+// Raw API articles -> clean objects the cards can use (off-topic stories are dropped here)
 function prepareArticles(articles) {
     return articles
         .filter((a) => a && a.title && a.url && /^https?:\/\//i.test(a.url))
@@ -90,15 +146,18 @@ function prepareArticles(articles) {
         .map((a, index) => {
             const source = (a.source && a.source.name) || '';
             const title = cleanTitle(a.title, source);
+            const summary = cleanSummary(a.description, title, source);
             return {
                 id: `news-${index}`,
                 title,
-                summary: cleanSummary(a.description, title, source),
+                summary,
                 url: a.url,
                 source: source.toUpperCase(),
+                category: categorize(`${title} ${summary}`, source),
                 time: timeAgo(a.publishedAt),
             };
-        });
+        })
+        .filter((item) => item.category);
 }
 
 /* ---------- rendering ---------- */
@@ -119,7 +178,10 @@ function renderNews(newsData) {
         card.style.setProperty('--i', index);
 
         const meta = el('div', 'card-meta');
-        meta.appendChild(el('span', 'source-tag', item.source || 'TECH'));
+        const tags = el('div', 'card-tags');
+        tags.appendChild(el('span', 'source-tag', item.source || 'TECH'));
+        tags.appendChild(el('span', 'category-tag', item.category));
+        meta.appendChild(tags);
         meta.appendChild(el('span', 'time-ago', item.time));
         card.appendChild(meta);
 
@@ -139,7 +201,45 @@ function renderNews(newsData) {
     });
 }
 
+// The row of category buttons (ALL, AI, GAMING...) with a count on each
+function renderFilterBar() {
+    filterBar.innerHTML = '';
+
+    ['ALL', ...CATEGORY_ORDER].forEach((category) => {
+        const count =
+            category === 'ALL'
+                ? currentNews.length
+                : currentNews.filter((item) => item.category === category).length;
+        if (category !== 'ALL' && count === 0) return; // no empty buttons
+
+        const isActive = category === activeCategory;
+        const button = el('button', isActive ? 'filter-button is-active' : 'filter-button');
+        button.type = 'button';
+        button.dataset.category = category;
+        button.setAttribute('aria-pressed', String(isActive));
+        button.appendChild(document.createTextNode(category));
+        button.appendChild(el('span', 'filter-count', String(count)));
+        filterBar.appendChild(button);
+    });
+
+    filterBar.hidden = false;
+}
+
+// Draw the filter buttons + the cards for the chosen category
+function showCurrent() {
+    if (activeCategory !== 'ALL' && !currentNews.some((item) => item.category === activeCategory)) {
+        activeCategory = 'ALL';
+    }
+    renderFilterBar();
+    const list =
+        activeCategory === 'ALL'
+            ? currentNews
+            : currentNews.filter((item) => item.category === activeCategory);
+    renderNews(list);
+}
+
 function showLoading() {
+    filterBar.hidden = true;
     newsContainer.innerHTML = '';
     const card = el('div', 'pixel-card flex justify-center items-center h-48 col-span-full');
     card.appendChild(el('p', 'pixel-font text-lg blink', 'Loading news'));
@@ -147,6 +247,7 @@ function showLoading() {
 }
 
 function showError(message) {
+    filterBar.hidden = true;
     newsContainer.innerHTML = '';
     const card = el('div', 'pixel-card col-span-full error-card');
     card.appendChild(el('h3', 'pixel-font text-2xl mb-4 blink', 'Signal lost'));
@@ -171,8 +272,17 @@ newsContainer.addEventListener('click', (event) => {
     }
 });
 
+filterBar.addEventListener('click', (event) => {
+    const button = event.target.closest('.filter-button');
+    if (!button || button.dataset.category === activeCategory) return;
+    activeCategory = button.dataset.category;
+    showCurrent();
+});
+
 // The logo in index.html calls this (module scripts need it on window)
 window.showAllNews = function () {
+    activeCategory = 'ALL';
+    if (hasRendered) showCurrent();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
@@ -205,7 +315,7 @@ async function fetchNews() {
 
         if (!hasRendered || changed) {
             currentNews = articles;
-            renderNews(currentNews);
+            showCurrent();
             hasRendered = true;
         }
     } catch (error) {
