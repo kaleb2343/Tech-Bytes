@@ -1,45 +1,87 @@
-// netlify/fetch-news.js
-const { API_KEY } = process.env; // This securely gets your API key from Netlify
+// netlify/functions/fetch-news.js
+const { API_KEY } = process.env; // Your NewsAPI key, stored safely in Netlify
 
-exports.handler = async function(event, context) {
-    const NEWS_URL = `https://newsapi.org/v2/top-headlines?country=us&category=technology&pageSize=10&apiKey=${API_KEY}`;
+// Only these sites are allowed in. Tech, AI, gaming, gadgets, security.
+const DOMAINS = [
+    'theverge.com',
+    'techcrunch.com',
+    'arstechnica.com',
+    'wired.com',
+    'engadget.com',
+    'gizmodo.com',
+    'cnet.com',
+    'tomshardware.com',
+    '9to5mac.com',
+    'venturebeat.com',
+    'bleepingcomputer.com',
+    'thehackernews.com',
+    'ign.com',
+    'gamespot.com',
+    'polygon.com',
+    'pcgamer.com',
+].join(',');
+
+const jsonHeaders = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+};
+
+exports.handler = async function () {
+    const params = new URLSearchParams({
+        domains: DOMAINS,
+        language: 'en',
+        sortBy: 'publishedAt',
+        pageSize: '40',
+        apiKey: API_KEY,
+    });
+    const NEWS_URL = `https://newsapi.org/v2/everything?${params.toString()}`;
 
     try {
         const response = await fetch(NEWS_URL);
         const data = await response.json();
 
-        // If NewsAPI gives an error (like 426), we pass that error back
+        // If NewsAPI gives an error, pass it back (not cached)
         if (!response.ok) {
-            const errorMessage = data.message || `HTTP error! status: ${response.status}`;
             return {
                 statusCode: response.status,
-                body: JSON.stringify({ error: errorMessage }),
-                headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*", // Allows your website to get the data
-                },
+                headers: jsonHeaders,
+                body: JSON.stringify({
+                    error: data.message || `HTTP error! status: ${response.status}`,
+                }),
             };
         }
 
-        // If everything is good, send the news data back to your website
+        // Clean the list: drop broken, empty and duplicate stories
+        const seen = new Set();
+        const cleaned = (data.articles || [])
+            .filter((a) => a.title && a.description && a.url)
+            .filter((a) => !a.title.includes('[Removed]'))
+            .filter((a) => {
+                const key = a.title.trim().toLowerCase();
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            })
+            .slice(0, 24);
+
         return {
             statusCode: 200,
-            body: JSON.stringify(data),
             headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*", // Allows your website to get the data
+                ...jsonHeaders,
+                // Netlify keeps this answer for 30 minutes, so lots of visitors
+                // only cost you ONE NewsAPI request every 30 minutes.
+                'Netlify-CDN-Cache-Control':
+                    'public, s-maxage=1800, stale-while-revalidate=3600',
+                'Cache-Control': 'public, max-age=0, must-revalidate',
             },
+            body: JSON.stringify({ ...data, articles: cleaned }),
         };
     } catch (error) {
-        // If something goes wrong in this function, send a general error
-        console.error("Error in Netlify function:", error);
+        console.error('Error in Netlify function:', error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: "Failed to fetch news from API." }),
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-            },
+            headers: jsonHeaders,
+            body: JSON.stringify({ error: 'Failed to fetch news from API.' }),
         };
     }
 };
