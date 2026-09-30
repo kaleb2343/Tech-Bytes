@@ -313,3 +313,23 @@ body {
         height: 20px;
     }
 }
+
+
+/* ===== STEP 4: tagline under the title ===== */
+
+.tagline {
+    text-align: center;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.75rem;
+    line-height: 1.6;
+    text-transform: uppercase;
+    color: #000000;
+    margin: -1rem 0 2rem;
+}
+
+@media (max-width: 768px) {
+    .tagline {
+        font-size: 0.6rem;
+        margin-bottom: 1.5rem;
+    }
+}

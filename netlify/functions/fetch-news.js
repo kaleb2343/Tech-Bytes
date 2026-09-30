@@ -2,7 +2,9 @@
 const { API_KEY } = process.env; // Your NewsAPI key, stored safely in Netlify
 
 // Only these sites are allowed in. Tech, AI, gaming, gadgets, security.
+// (If NewsAPI doesn't cover one of them, it just returns nothing for it. Nothing breaks.)
 const DOMAINS = [
+    // tech and gadgets
     'theverge.com',
     'techcrunch.com',
     'arstechnica.com',
@@ -11,14 +13,31 @@ const DOMAINS = [
     'gizmodo.com',
     'cnet.com',
     'tomshardware.com',
+    'techradar.com',
+    'zdnet.com',
+    'pcmag.com',
+    'digitaltrends.com',
+    'macrumors.com',
     '9to5mac.com',
+    '9to5google.com',
+    'androidcentral.com',
+    'windowscentral.com',
+    'theregister.com',
+    // AI
     'venturebeat.com',
+    // security
     'bleepingcomputer.com',
     'thehackernews.com',
+    'securityweek.com',
+    'krebsonsecurity.com',
+    // gaming
     'ign.com',
     'gamespot.com',
     'polygon.com',
     'pcgamer.com',
+    'eurogamer.net',
+    'rockpapershotgun.com',
+    'videogameschronicle.com',
 ].join(',');
 
 const jsonHeaders = {
@@ -31,7 +50,7 @@ exports.handler = async function () {
         domains: DOMAINS,
         language: 'en',
         sortBy: 'publishedAt',
-        pageSize: '40',
+        pageSize: '100', // the most NewsAPI allows in one request
         apiKey: API_KEY,
     });
     const NEWS_URL = `https://newsapi.org/v2/everything?${params.toString()}`;
@@ -62,7 +81,7 @@ exports.handler = async function () {
                 seen.add(key);
                 return true;
             })
-            .slice(0, 24);
+            .slice(0, 60);
 
         return {
             statusCode: 200,
