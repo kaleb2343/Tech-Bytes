@@ -241,7 +241,7 @@ body {
     border-radius: 0;
     cursor: pointer;
     display: inline-flex;
-    align-items: center;
+    align-items: baseline; /* label and number share one baseline */
     gap: 0.55rem;
     transition: background-color 0.08s steps(2), color 0.08s steps(2);
 }
@@ -264,6 +264,7 @@ body {
     width: 24px;
     height: 24px;
     flex-shrink: 0;
+    align-self: center; /* icon stays centered while text lines up on a baseline */
 }
 
 .filter-count {
