@@ -708,3 +708,34 @@ body {
         padding-right: 0.75rem;
     }
 }
+
+
+/* ===== STEP 9: load more ===== */
+
+.load-more {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    margin-top: 0.5rem;
+}
+
+.load-more-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9rem;
+    font-size: 0.85rem;
+    padding: 0.9rem 1.6rem;
+    cursor: pointer;
+}
+
+.load-more-count {
+    font-family: 'VT323', monospace;
+    font-size: 1.4rem;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.load-more-button:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 3px;
+}

@@ -13,6 +13,7 @@ const REFRESH_MS = 10 * 60 * 1000; // check for new stories every 10 minutes (th
 const SAVED_KEY = 'techbytes.saved.v1';
 const THEME_KEY = 'techbytes.theme';
 const MAX_SAVED = 100;
+const PAGE_SIZE = 30; // cards shown at first, and added by each LOAD MORE
 
 // Stories containing these words are dropped (spam, promos, off-topic)
 const BLOCKED_WORDS = [
@@ -167,6 +168,8 @@ let currentNews = [];
 let savedStories = loadSaved();
 let activeCategory = 'ALL';
 let searchQuery = '';
+let restList = []; // the cards under the top story
+let shownCount = 0; // how many of them are on screen
 let hasRendered = false;
 let isLoading = false;
 
@@ -429,7 +432,7 @@ function renderEmpty(title, message) {
 function buildCard(item, index, featured) {
     const card = el('div', featured ? 'pixel-card news-card featured-card col-span-full' : 'pixel-card news-card');
     if (item.id) card.id = item.id;
-    card.style.setProperty('--i', index);
+    card.style.setProperty('--i', Math.min(index, 8)); // longest fade-in delay is about 0.3 seconds
 
     const meta = el('div', 'card-meta');
     const tags = el('div', 'card-tags');
@@ -463,6 +466,8 @@ function buildCard(item, index, featured) {
 function renderNews(newsData, animate, withFeatured) {
     newsContainer.innerHTML = '';
     newsContainer.classList.toggle('no-anim', !animate);
+    restList = [];
+    shownCount = 0;
 
     if (newsData.length === 0) {
         if (searchQuery) {
@@ -475,16 +480,40 @@ function renderNews(newsData, animate, withFeatured) {
         return;
     }
 
-    let rest = newsData;
+    restList = newsData;
     if (withFeatured) {
         // the newest story that has a summary becomes the big top story
         const top = newsData.find((item) => item.summary) || newsData[0];
-        rest = newsData.filter((item) => item !== top);
+        restList = newsData.filter((item) => item !== top);
         newsContainer.appendChild(buildCard(top, 0, true));
     }
-    rest.forEach((item, index) => {
+    appendCards(PAGE_SIZE);
+}
+
+// Adds the next batch of cards, then the LOAD MORE button if stories are left
+function appendCards(count) {
+    const batch = restList.slice(shownCount, shownCount + count);
+    batch.forEach((item, index) => {
         newsContainer.appendChild(buildCard(item, index + 1, false));
     });
+    shownCount += batch.length;
+    updateLoadMore();
+}
+
+function updateLoadMore() {
+    const old = newsContainer.querySelector('.load-more');
+    if (old) old.remove();
+
+    const left = restList.length - shownCount;
+    if (left <= 0) return;
+
+    const wrap = el('div', 'load-more');
+    const button = el('button', 'pixel-button load-more-button');
+    button.type = 'button';
+    button.appendChild(document.createTextNode('Load more'));
+    button.appendChild(el('span', 'load-more-count', `${left} left`));
+    wrap.appendChild(button);
+    newsContainer.appendChild(wrap);
 }
 
 // The row of category buttons (ALL, AI, GAMING...) with an icon and a count on each
@@ -579,6 +608,13 @@ newsContainer.addEventListener('click', (event) => {
     const readMore = event.target.closest('.read-more-button');
     if (readMore) {
         window.open(readMore.dataset.newsUrl, '_blank', 'noopener');
+        return;
+    }
+    if (event.target.closest('.load-more-button')) {
+        newsContainer.classList.remove('no-anim'); // new cards fade in
+        appendCards(PAGE_SIZE);
+        const next = newsContainer.querySelector('.load-more-button');
+        if (next) next.focus({ preventScroll: true });
         return;
     }
     if (event.target.closest('.retry-button')) {
@@ -677,9 +713,12 @@ async function fetchNews() {
 
         if (!hasRendered || changed) {
             const firstDraw = !hasRendered;
+            const alreadyShown = shownCount;
             currentNews = articles;
             hasRendered = true;
             showCurrent(firstDraw);
+            // if the reader had pressed LOAD MORE, keep those cards on screen
+            if (!firstDraw && alreadyShown > PAGE_SIZE) appendCards(alreadyShown - PAGE_SIZE);
         }
     } catch (error) {
         console.error('Could not fetch news:', error);
