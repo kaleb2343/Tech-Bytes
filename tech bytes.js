@@ -41,7 +41,8 @@ const CATEGORY_KEYWORDS = {
         'hack', 'hacker', 'hacking', 'hacked', 'ransomware', 'malware', 'botnet', 'spyware',
         'phishing', 'breach', 'breached', 'vulnerability', 'vulnerabilities', 'exploit',
         'exploited', 'cyberattack', 'cybersecurity', 'zero-day', 'security flaw', 'flaw',
-        'data leak', 'misconfigured', 'expose', 'exposed', 'exposing',
+        'data leak', 'misconfigured', 'security bypass', 'expose data', 'exposes data',
+        'exposed data', 'exposing data', 'exposed keys', 'exposed credentials', 'exposed database',
     ],
     AI: [
         'ai', 'artificial intelligence', 'openai', 'anthropic', 'chatgpt', 'gemini', 'claude',
