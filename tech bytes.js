@@ -9,7 +9,7 @@ const searchStatus = document.getElementById('search-status');
 const themeToggle = document.getElementById('theme-toggle');
 
 const NEWS_URL = '/.netlify/functions/fetch-news';
-const REFRESH_MS = 30 * 60 * 1000; // matches the 30 minute cache in the Netlify function
+const REFRESH_MS = 10 * 60 * 1000; // check for new stories every 10 minutes (the function caches for 5)
 const SAVED_KEY = 'techbytes.saved.v1';
 const THEME_KEY = 'techbytes.theme';
 const MAX_SAVED = 100;
