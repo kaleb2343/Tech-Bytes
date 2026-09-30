@@ -25,6 +25,9 @@ const BLOCKED_WORDS = [
    To let more stories in, just add words to a list. Plurals (hack -> hacks) work automatically. */
 const CATEGORY_ORDER = ['SECURITY', 'AI', 'GAMING', 'GADGETS'];
 
+// The order the filter buttons appear in
+const FILTER_ORDER = ['ALL', 'AI', 'GAMING', 'GADGETS', 'SECURITY'];
+
 const CATEGORY_KEYWORDS = {
     SECURITY: [
         'hack', 'hacker', 'hacking', 'hacked', 'ransomware', 'malware', 'botnet', 'spyware',
@@ -253,7 +256,7 @@ function renderFilterBar() {
     filterBar.innerHTML = '';
     filterBar.appendChild(el('p', 'filter-label', 'Select channel'));
 
-    ['ALL', ...CATEGORY_ORDER].forEach((category) => {
+    FILTER_ORDER.forEach((category) => {
         const count =
             category === 'ALL'
                 ? currentNews.length
