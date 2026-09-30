@@ -288,9 +288,56 @@ function isBlocked(article) {
     return BLOCKED_WORDS.some((word) => text.includes(word));
 }
 
+/* ---------- near-duplicate stories ----------
+   Sites often publish the same story many times (four Hisense TV reviews that differ
+   only by screen size, six stories about the same headphones...).
+   We compare the important words in the headlines and keep only the newest of each group. */
+const FILLER_WORDS = new Set(
+    ('the a an and or of to in on for with is are was were be by at as it its this that from new ' +
+        'after over into your you how why what who will can has have just now more than but not out ' +
+        'all get gets says say first one two best review reviews about their they them our his her ' +
+        'here there when where which while also like so if').split(' ')
+);
+
+// The meaningful words of a headline (no filler, no numbers, "headphones" = "headphone")
+function headlineWords(title) {
+    const words = (title || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').split(' ').filter(Boolean);
+    const set = new Set();
+    words.forEach((word) => {
+        if (word.length < 3 || /^[0-9]+$/.test(word) || FILLER_WORDS.has(word)) return;
+        set.add(word.length > 3 && word.endsWith('s') && !word.endsWith('ss') ? word.slice(0, -1) : word);
+    });
+    return set;
+}
+
+function sameStory(a, b) {
+    let shared = 0;
+    a.forEach((word) => {
+        if (b.has(word)) shared++;
+    });
+    const smaller = Math.min(a.size, b.size);
+    const total = a.size + b.size - shared;
+    return (shared >= 3 && shared / smaller >= 0.3) || (shared >= 2 && shared / total >= 0.6);
+}
+
+// Newest first, then drop any story that repeats one we already kept
+function removeDuplicates(items) {
+    const newestFirst = [...items].sort(
+        (x, y) => (new Date(y.published).getTime() || 0) - (new Date(x.published).getTime() || 0)
+    );
+    const kept = [];
+    newestFirst.forEach((item) => {
+        const words = headlineWords(item.title);
+        if (!kept.some((other) => sameStory(other.words, words))) {
+            kept.push({ item, words });
+        }
+    });
+    return kept.map((entry) => entry.item);
+}
+
 // Raw API articles -> clean objects the cards can use (off-topic stories are dropped here)
 function prepareArticles(articles) {
-    return articles
+    const clean = articles
         .filter((a) => a && a.title && a.url && /^https?:\/\//i.test(a.url))
         .filter((a) => !isBlocked(a) && !/\/forums?\//i.test(a.url))
         .map((a, index) => {
@@ -308,6 +355,8 @@ function prepareArticles(articles) {
             };
         })
         .filter((item) => item.category);
+
+    return removeDuplicates(clean);
 }
 
 // Draws a pixel icon from a list of rows (colored by the surrounding text color)
