@@ -1,10 +1,16 @@
-// Tech Bytes - main script (step 3: category filters with pixel icons)
+// Tech Bytes - main script (search + saved stories)
 
 const newsContainer = document.getElementById('news-container');
 const filterBar = document.getElementById('filter-bar');
+const searchBar = document.getElementById('search-bar');
+const searchInput = document.getElementById('search-input');
+const searchClear = document.getElementById('search-clear');
+const searchStatus = document.getElementById('search-status');
 
 const NEWS_URL = '/.netlify/functions/fetch-news';
 const REFRESH_MS = 30 * 60 * 1000; // matches the 30 minute cache in the Netlify function
+const SAVED_KEY = 'techbytes.saved.v1';
+const MAX_SAVED = 100;
 
 // Stories containing these words are dropped (spam, promos, off-topic)
 const BLOCKED_WORDS = [
@@ -26,7 +32,7 @@ const BLOCKED_WORDS = [
 const CATEGORY_ORDER = ['SECURITY', 'AI', 'GAMING', 'GADGETS'];
 
 // The order the filter buttons appear in
-const FILTER_ORDER = ['ALL', 'AI', 'GAMING', 'GADGETS', 'SECURITY'];
+const FILTER_ORDER = ['ALL', 'AI', 'GAMING', 'GADGETS', 'SECURITY', 'SAVED'];
 
 const CATEGORY_KEYWORDS = {
     SECURITY: [
@@ -58,7 +64,29 @@ const CATEGORY_KEYWORDS = {
 const SECURITY_SOURCES = ['bleepingcomputer', 'thehackernews'];
 const SOURCE_DEFAULT = { pcgamer: 'GAMING', tomshardware: 'GADGETS' };
 
-// Little pixel icons for the filter buttons (# = black pixel, 12 pixels wide)
+// Little pixel icons (# = black pixel, up to 12 pixels wide)
+const HEART_FILLED = [
+    '.##....##.',
+    '####..####',
+    '##########',
+    '##########',
+    '.########.',
+    '..######..',
+    '...####...',
+    '....##....',
+];
+
+const HEART_OUTLINE = [
+    '.##....##.',
+    '#..#..#..#',
+    '#...##...#',
+    '#........#',
+    '.#......#.',
+    '..#....#..',
+    '...#..#...',
+    '....##....',
+];
+
 const CATEGORY_ICONS = {
     ALL: [
         '............', '.####..####.', '.####..####.', '.####..####.', '.####..####.', '............',
@@ -80,6 +108,7 @@ const CATEGORY_ICONS = {
         '.##########.', '.##########.', '.####..####.', '.###....###.', '.####..####.',
         '.####..####.', '..########..', '...######...', '....####....', '.....##.....',
     ],
+    SAVED: HEART_FILLED,
 };
 
 const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -99,10 +128,72 @@ function categorize(text, sourceName) {
     return SOURCE_DEFAULT[source] || null;
 }
 
+/* ---------- state ---------- */
+
 let currentNews = [];
+let savedStories = loadSaved();
 let activeCategory = 'ALL';
+let searchQuery = '';
 let hasRendered = false;
 let isLoading = false;
+
+/* ---------- saved stories (kept in this browser only) ---------- */
+
+function loadSaved() {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(SAVED_KEY) || '[]');
+        if (!Array.isArray(parsed)) return [];
+        return parsed
+            .filter((s) => s && typeof s.title === 'string' && typeof s.url === 'string')
+            .filter((s) => /^https?:\/\//i.test(s.url))
+            .map((s) => ({
+                url: s.url,
+                title: s.title,
+                summary: typeof s.summary === 'string' ? s.summary : '',
+                source: typeof s.source === 'string' ? s.source : '',
+                category: CATEGORY_ORDER.includes(s.category) ? s.category : 'TECH',
+                published: typeof s.published === 'string' ? s.published : '',
+            }));
+    } catch (e) {
+        return []; // storage blocked or corrupted: start empty
+    }
+}
+
+function persistSaved() {
+    try {
+        localStorage.setItem(SAVED_KEY, JSON.stringify(savedStories));
+    } catch (e) {
+        /* storage full or blocked: saving just won't last */
+    }
+}
+
+function isSaved(url) {
+    return savedStories.some((s) => s.url === url);
+}
+
+// Save or un-save a story. Returns true if it is saved afterwards.
+function toggleSaved(url) {
+    if (isSaved(url)) {
+        savedStories = savedStories.filter((s) => s.url !== url);
+        persistSaved();
+        return false;
+    }
+    const story = currentNews.find((s) => s.url === url);
+    if (!story) return false;
+    savedStories = [
+        {
+            url: story.url,
+            title: story.title,
+            summary: story.summary,
+            source: story.source,
+            category: story.category,
+            published: story.published,
+        },
+        ...savedStories,
+    ].slice(0, MAX_SAVED);
+    persistSaved();
+    return true;
+}
 
 /* ---------- small helpers ---------- */
 
@@ -181,32 +272,104 @@ function prepareArticles(articles) {
                 url: a.url,
                 source: source.toUpperCase(),
                 category: categorize(`${title} ${summary}`, source),
-                time: timeAgo(a.publishedAt),
+                published: a.publishedAt || '',
             };
         })
         .filter((item) => item.category);
 }
 
+// Draws a pixel icon from a list of rows (colored by the surrounding text color)
+function makeIcon(rows, className) {
+    const ns = 'http://www.w3.org/2000/svg';
+    const width = Math.max(...rows.map((row) => row.length));
+    const xOffset = Math.floor((12 - width) / 2);
+    const yOffset = Math.floor((12 - rows.length) / 2);
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 12 12');
+    svg.setAttribute('class', className);
+    svg.setAttribute('shape-rendering', 'crispEdges');
+    svg.setAttribute('aria-hidden', 'true');
+    rows.forEach((row, y) => {
+        for (let x = 0; x < row.length; x++) {
+            if (row[x] !== '#') continue;
+            const rect = document.createElementNS(ns, 'rect');
+            rect.setAttribute('x', x + xOffset);
+            rect.setAttribute('y', y + yOffset);
+            rect.setAttribute('width', 1);
+            rect.setAttribute('height', 1);
+            rect.setAttribute('fill', 'currentColor');
+            svg.appendChild(rect);
+        }
+    });
+    return svg;
+}
+
+/* ---------- search ---------- */
+
+function matchesSearch(item) {
+    const haystack = `${item.title} ${item.summary} ${item.source} ${item.category}`.toLowerCase();
+    return searchQuery
+        .toLowerCase()
+        .split(/\s+/)
+        .filter(Boolean)
+        .every((term) => haystack.includes(term));
+}
+
+function getVisibleStories() {
+    let list;
+    if (activeCategory === 'SAVED') list = savedStories;
+    else if (activeCategory === 'ALL') list = currentNews;
+    else list = currentNews.filter((item) => item.category === activeCategory);
+    return searchQuery ? list.filter(matchesSearch) : list;
+}
+
 /* ---------- rendering ---------- */
 
-function renderNews(newsData) {
+function makeSaveButton(url) {
+    const saved = isSaved(url);
+    const button = el('button', saved ? 'save-button is-saved' : 'save-button');
+    button.type = 'button';
+    button.dataset.url = url;
+    button.setAttribute('aria-pressed', String(saved));
+    button.setAttribute('aria-label', saved ? 'Remove from saved' : 'Save story');
+    button.title = saved ? 'Remove from saved' : 'Save story';
+    button.appendChild(makeIcon(saved ? HEART_FILLED : HEART_OUTLINE, 'save-icon'));
+    return button;
+}
+
+function renderEmpty(title, message) {
+    const card = el('div', 'pixel-card col-span-full empty-card');
+    card.appendChild(el('h3', 'pixel-font text-xl mb-4', title));
+    if (message) card.appendChild(el('p', 'text-base', message));
+    newsContainer.appendChild(card);
+}
+
+function renderNews(newsData, animate) {
     newsContainer.innerHTML = '';
+    newsContainer.classList.toggle('no-anim', !animate);
 
     if (newsData.length === 0) {
-        const card = el('div', 'pixel-card col-span-full text-center');
-        card.appendChild(el('p', 'pixel-font', 'No news available at the moment.'));
-        newsContainer.appendChild(card);
+        if (searchQuery) {
+            renderEmpty('No results', `Nothing matches "${searchQuery}". Try another word.`);
+        } else if (activeCategory === 'SAVED') {
+            renderEmpty('Nothing saved yet', 'Tap the heart on any story to keep it here.');
+        } else {
+            renderEmpty('No news available at the moment.');
+        }
         return;
     }
 
     newsData.forEach((item, index) => {
         const card = el('div', 'pixel-card news-card');
-        card.id = item.id;
+        if (item.id) card.id = item.id;
         card.style.setProperty('--i', index);
 
         const meta = el('div', 'card-meta');
         meta.appendChild(el('span', 'category-tag', item.category));
-        meta.appendChild(el('span', 'time-ago', item.time));
+        const right = el('div', 'card-meta-right');
+        right.appendChild(el('span', 'time-ago', timeAgo(item.published)));
+        right.appendChild(makeSaveButton(item.url));
+        meta.appendChild(right);
         card.appendChild(meta);
 
         card.appendChild(el('h3', 'text-xl md:text-2xl pixel-font mb-4 text-left', item.title));
@@ -226,49 +389,26 @@ function renderNews(newsData) {
     });
 }
 
-// Draws one pixel icon (colored by the button's text color)
-function makeIcon(category) {
-    const ns = 'http://www.w3.org/2000/svg';
-    const rows = CATEGORY_ICONS[category];
-    const offset = Math.floor((12 - rows.length) / 2);
-    const svg = document.createElementNS(ns, 'svg');
-    svg.setAttribute('viewBox', '0 0 12 12');
-    svg.setAttribute('class', 'filter-icon');
-    svg.setAttribute('shape-rendering', 'crispEdges');
-    svg.setAttribute('aria-hidden', 'true');
-    rows.forEach((row, y) => {
-        for (let x = 0; x < row.length; x++) {
-            if (row[x] !== '#') continue;
-            const rect = document.createElementNS(ns, 'rect');
-            rect.setAttribute('x', x);
-            rect.setAttribute('y', y + offset);
-            rect.setAttribute('width', 1);
-            rect.setAttribute('height', 1);
-            rect.setAttribute('fill', 'currentColor');
-            svg.appendChild(rect);
-        }
-    });
-    return svg;
-}
-
 // The row of category buttons (ALL, AI, GAMING...) with an icon and a count on each
 function renderFilterBar() {
     filterBar.innerHTML = '';
     filterBar.appendChild(el('p', 'filter-label', 'Select channel'));
 
     FILTER_ORDER.forEach((category) => {
-        const count =
-            category === 'ALL'
-                ? currentNews.length
-                : currentNews.filter((item) => item.category === category).length;
-        if (category !== 'ALL' && count === 0) return; // no empty buttons
+        let count;
+        if (category === 'ALL') count = currentNews.length;
+        else if (category === 'SAVED') count = savedStories.length;
+        else count = currentNews.filter((item) => item.category === category).length;
+
+        // no empty category buttons (ALL and SAVED always show)
+        if (count === 0 && category !== 'ALL' && category !== 'SAVED') return;
 
         const isActive = category === activeCategory;
         const button = el('button', isActive ? 'filter-button is-active' : 'filter-button');
         button.type = 'button';
         button.dataset.category = category;
         button.setAttribute('aria-pressed', String(isActive));
-        button.appendChild(makeIcon(category));
+        button.appendChild(makeIcon(CATEGORY_ICONS[category] || CATEGORY_ICONS.ALL, 'filter-icon'));
         button.appendChild(el('span', 'filter-name', category));
         button.appendChild(el('span', 'filter-count', String(count)));
         filterBar.appendChild(button);
@@ -277,21 +417,29 @@ function renderFilterBar() {
     filterBar.hidden = false;
 }
 
-// Draw the filter buttons + the cards for the chosen category
-function showCurrent() {
-    if (activeCategory !== 'ALL' && !currentNews.some((item) => item.category === activeCategory)) {
+// Draw the filter buttons, the search bar and the cards
+function showCurrent(animate = true) {
+    if (
+        activeCategory !== 'ALL' &&
+        activeCategory !== 'SAVED' &&
+        !currentNews.some((item) => item.category === activeCategory)
+    ) {
         activeCategory = 'ALL';
     }
     renderFilterBar();
-    const list =
-        activeCategory === 'ALL'
-            ? currentNews
-            : currentNews.filter((item) => item.category === activeCategory);
-    renderNews(list);
+    searchBar.hidden = false;
+
+    const list = getVisibleStories();
+    searchStatus.textContent = searchQuery
+        ? `${list.length} ${list.length === 1 ? 'MATCH' : 'MATCHES'}`
+        : '';
+    searchClear.hidden = !searchQuery;
+    renderNews(list, animate);
 }
 
 function showLoading() {
     filterBar.hidden = true;
+    searchBar.hidden = true;
     newsContainer.innerHTML = '';
     const card = el('div', 'pixel-card flex justify-center items-center h-48 col-span-full');
     card.appendChild(el('p', 'pixel-font text-lg blink', 'Loading news'));
@@ -300,6 +448,7 @@ function showLoading() {
 
 function showError(message) {
     filterBar.hidden = true;
+    searchBar.hidden = true;
     newsContainer.innerHTML = '';
     const card = el('div', 'pixel-card col-span-full error-card');
     card.appendChild(el('h3', 'pixel-font text-2xl mb-4 blink', 'Signal lost'));
@@ -313,6 +462,19 @@ function showError(message) {
 /* ---------- events ---------- */
 
 newsContainer.addEventListener('click', (event) => {
+    const saveButton = event.target.closest('.save-button');
+    if (saveButton) {
+        toggleSaved(saveButton.dataset.url);
+        if (activeCategory === 'SAVED') {
+            showCurrent(false); // the story leaves the saved list right away
+        } else {
+            const fresh = makeSaveButton(saveButton.dataset.url);
+            saveButton.replaceWith(fresh);
+            renderFilterBar(); // updates the SAVED count
+        }
+        return;
+    }
+
     const readMore = event.target.closest('.read-more-button');
     if (readMore) {
         window.open(readMore.dataset.newsUrl, '_blank', 'noopener');
@@ -331,9 +493,31 @@ filterBar.addEventListener('click', (event) => {
     showCurrent();
 });
 
+searchInput.addEventListener('input', () => {
+    searchQuery = searchInput.value.trim();
+    showCurrent(false); // no flicker while typing
+});
+
+searchInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') clearSearch();
+});
+
+searchClear.addEventListener('click', () => {
+    clearSearch();
+    searchInput.focus();
+});
+
+function clearSearch() {
+    searchInput.value = '';
+    searchQuery = '';
+    if (hasRendered) showCurrent(false);
+}
+
 // The logo in index.html calls this (module scripts need it on window)
 window.showAllNews = function () {
     activeCategory = 'ALL';
+    searchInput.value = '';
+    searchQuery = '';
     if (hasRendered) showCurrent();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
@@ -366,9 +550,10 @@ async function fetchNews() {
             articles.map((a) => a.url).join('|') !== currentNews.map((a) => a.url).join('|');
 
         if (!hasRendered || changed) {
+            const firstDraw = !hasRendered;
             currentNews = articles;
-            showCurrent();
             hasRendered = true;
+            showCurrent(firstDraw);
         }
     } catch (error) {
         console.error('Could not fetch news:', error);

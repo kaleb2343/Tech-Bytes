@@ -333,3 +333,139 @@ body {
         margin-bottom: 1.5rem;
     }
 }
+
+
+/* ===== STEP 5: search + saved stories ===== */
+
+.filter-bar {
+    margin-bottom: 1.25rem;
+}
+
+/* Search box */
+.search-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0 auto 2rem;
+    max-width: 34rem;
+}
+
+.search-bar[hidden] {
+    display: none;
+}
+
+.search-field {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    border: 2px solid #000000;
+    padding: 0.35rem 0.6rem;
+    cursor: text;
+    transition: box-shadow 0.08s steps(2), transform 0.08s steps(2);
+}
+
+.search-field:focus-within {
+    background-color: #7A8C70;
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 #000000;
+}
+
+.search-prompt {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.8rem;
+    color: #000000;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    font-family: 'VT323', monospace;
+    font-size: 1.6rem;
+    line-height: 1.2;
+    color: #000000;
+    text-transform: uppercase;
+}
+
+.search-input::placeholder {
+    color: rgba(0, 0, 0, 0.55);
+}
+
+.search-clear {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.65rem;
+    background-color: #000000;
+    color: #D0E0C0;
+    border: 0;
+    padding: 0.45rem 0.55rem;
+    cursor: pointer;
+}
+
+.search-clear[hidden] {
+    display: none;
+}
+
+.search-clear:hover {
+    background-color: #333333;
+}
+
+.search-status {
+    font-family: 'VT323', monospace;
+    font-size: 1.3rem;
+    line-height: 1;
+    min-height: 1.3rem;
+    color: #000000;
+}
+
+/* No flicker-in while typing or un-saving */
+.no-anim .news-card {
+    animation: none;
+}
+
+/* Heart (save) button in the card's top row */
+.card-meta-right {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.save-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.2rem;
+    background: transparent;
+    border: 0;
+    color: #000000;
+    cursor: pointer;
+    transition: background-color 0.08s steps(2);
+}
+
+.save-button:hover {
+    background-color: #7A8C70;
+}
+
+.save-button:focus-visible {
+    outline: 3px solid #000000;
+    outline-offset: 2px;
+}
+
+.save-icon {
+    width: 24px;
+    height: 24px;
+}
+
+/* Empty states (no results, nothing saved) */
+.empty-card {
+    align-items: flex-start;
+}
+
+@media (max-width: 768px) {
+    .search-input {
+        font-size: 1.4rem;
+    }
+}
