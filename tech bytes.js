@@ -1,4 +1,4 @@
-// Tech Bytes - main script (search + saved stories)
+// Tech Bytes - main script
 
 const newsContainer = document.getElementById('news-container');
 const filterBar = document.getElementById('filter-bar');
@@ -6,10 +6,12 @@ const searchBar = document.getElementById('search-bar');
 const searchInput = document.getElementById('search-input');
 const searchClear = document.getElementById('search-clear');
 const searchStatus = document.getElementById('search-status');
+const themeToggle = document.getElementById('theme-toggle');
 
 const NEWS_URL = '/.netlify/functions/fetch-news';
 const REFRESH_MS = 30 * 60 * 1000; // matches the 30 minute cache in the Netlify function
 const SAVED_KEY = 'techbytes.saved.v1';
+const THEME_KEY = 'techbytes.theme';
 const MAX_SAVED = 100;
 
 // Stories containing these words are dropped (spam, promos, off-topic)
@@ -85,6 +87,36 @@ const HEART_OUTLINE = [
     '..#....#..',
     '...#..#...',
     '....##....',
+];
+
+const MOON_ICON = [
+    '............',
+    '....#.......',
+    '..###.......',
+    '..###.......',
+    '.####.......',
+    '.####.......',
+    '.####.......',
+    '.#####......',
+    '.#########..',
+    '..########..',
+    '...#####....',
+    '............',
+];
+
+const SUN_ICON = [
+    '.....##.....',
+    '............',
+    '..#......#..',
+    '.....##.....',
+    '....####....',
+    '#..######..#',
+    '#..######..#',
+    '....####....',
+    '.....##.....',
+    '..#......#..',
+    '............',
+    '.....##.....',
 ];
 
 const CATEGORY_ICONS = {
@@ -344,7 +376,41 @@ function renderEmpty(title, message) {
     newsContainer.appendChild(card);
 }
 
-function renderNews(newsData, animate) {
+function buildCard(item, index, featured) {
+    const card = el('div', featured ? 'pixel-card news-card featured-card col-span-full' : 'pixel-card news-card');
+    if (item.id) card.id = item.id;
+    card.style.setProperty('--i', index);
+
+    const meta = el('div', 'card-meta');
+    const tags = el('div', 'card-tags');
+    if (featured) tags.appendChild(el('span', 'featured-badge', 'Top story'));
+    tags.appendChild(el('span', 'category-tag', item.category));
+    meta.appendChild(tags);
+    const right = el('div', 'card-meta-right');
+    right.appendChild(el('span', 'time-ago', timeAgo(item.published)));
+    right.appendChild(makeSaveButton(item.url));
+    meta.appendChild(right);
+    card.appendChild(meta);
+
+    const titleClass = featured
+        ? 'pixel-font mb-4 text-left featured-title'
+        : 'text-xl md:text-2xl pixel-font mb-4 text-left';
+    card.appendChild(el('h3', titleClass, item.title));
+
+    if (item.summary) {
+        card.appendChild(el('p', 'text-base text-left mb-4', item.summary));
+    }
+
+    const footer = el('div', 'card-footer mt-auto');
+    footer.appendChild(el('span', 'card-source', item.source ? `VIA ${item.source}` : ''));
+    const button = el('button', 'text-sm pixel-button read-more-button', 'Read More');
+    button.dataset.newsUrl = item.url;
+    footer.appendChild(button);
+    card.appendChild(footer);
+    return card;
+}
+
+function renderNews(newsData, animate, withFeatured) {
     newsContainer.innerHTML = '';
     newsContainer.classList.toggle('no-anim', !animate);
 
@@ -359,33 +425,15 @@ function renderNews(newsData, animate) {
         return;
     }
 
-    newsData.forEach((item, index) => {
-        const card = el('div', 'pixel-card news-card');
-        if (item.id) card.id = item.id;
-        card.style.setProperty('--i', index);
-
-        const meta = el('div', 'card-meta');
-        meta.appendChild(el('span', 'category-tag', item.category));
-        const right = el('div', 'card-meta-right');
-        right.appendChild(el('span', 'time-ago', timeAgo(item.published)));
-        right.appendChild(makeSaveButton(item.url));
-        meta.appendChild(right);
-        card.appendChild(meta);
-
-        card.appendChild(el('h3', 'text-xl md:text-2xl pixel-font mb-4 text-left', item.title));
-
-        if (item.summary) {
-            card.appendChild(el('p', 'text-base text-left mb-4', item.summary));
-        }
-
-        const footer = el('div', 'card-footer mt-auto');
-        footer.appendChild(el('span', 'card-source', item.source ? `VIA ${item.source}` : ''));
-        const button = el('button', 'text-sm pixel-button read-more-button', 'Read More');
-        button.dataset.newsUrl = item.url;
-        footer.appendChild(button);
-        card.appendChild(footer);
-
-        newsContainer.appendChild(card);
+    let rest = newsData;
+    if (withFeatured) {
+        // the newest story that has a summary becomes the big top story
+        const top = newsData.find((item) => item.summary) || newsData[0];
+        rest = newsData.filter((item) => item !== top);
+        newsContainer.appendChild(buildCard(top, 0, true));
+    }
+    rest.forEach((item, index) => {
+        newsContainer.appendChild(buildCard(item, index + 1, false));
     });
 }
 
@@ -393,6 +441,7 @@ function renderNews(newsData, animate) {
 function renderFilterBar() {
     filterBar.innerHTML = '';
     filterBar.appendChild(el('p', 'filter-label', 'Select channel'));
+    const row = el('div', 'filter-buttons');
 
     FILTER_ORDER.forEach((category) => {
         let count;
@@ -411,9 +460,10 @@ function renderFilterBar() {
         button.appendChild(makeIcon(CATEGORY_ICONS[category] || CATEGORY_ICONS.ALL, 'filter-icon'));
         button.appendChild(el('span', 'filter-name', category));
         button.appendChild(el('span', 'filter-count', String(count)));
-        filterBar.appendChild(button);
+        row.appendChild(button);
     });
 
+    filterBar.appendChild(row);
     filterBar.hidden = false;
 }
 
@@ -434,7 +484,8 @@ function showCurrent(animate = true) {
         ? `${list.length} ${list.length === 1 ? 'MATCH' : 'MATCHES'}`
         : '';
     searchClear.hidden = !searchQuery;
-    renderNews(list, animate);
+    const withFeatured = activeCategory === 'ALL' && !searchQuery && list.length >= 4;
+    renderNews(list, animate, withFeatured);
 }
 
 function showLoading() {
@@ -522,6 +573,31 @@ window.showAllNews = function () {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
+/* ---------- night mode ---------- */
+
+function currentTheme() {
+    return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+}
+
+function renderThemeToggle() {
+    const isDark = currentTheme() === 'dark';
+    themeToggle.innerHTML = '';
+    themeToggle.appendChild(makeIcon(isDark ? SUN_ICON : MOON_ICON, 'theme-icon'));
+    themeToggle.appendChild(el('span', 'theme-label', isDark ? 'Day' : 'Night'));
+    themeToggle.setAttribute('aria-label', isDark ? 'Switch to day mode' : 'Switch to night mode');
+}
+
+themeToggle.addEventListener('click', () => {
+    const next = currentTheme() === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try {
+        localStorage.setItem(THEME_KEY, next);
+    } catch (e) {
+        /* storage blocked: the choice just won't be remembered */
+    }
+    renderThemeToggle();
+});
+
 /* ---------- fetching ---------- */
 
 async function fetchNews() {
@@ -565,6 +641,7 @@ async function fetchNews() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    renderThemeToggle();
     fetchNews();
     setInterval(fetchNews, REFRESH_MS);
 });

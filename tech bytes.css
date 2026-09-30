@@ -1,8 +1,27 @@
 /* Custom styles for Nokia-like monochrome pixelated look (brighter version) */
+/* ===== Colours: day and night palettes (swap by changing these) ===== */
+:root {
+    --bg: #8CA17C;        /* page + card background */
+    --ink: #000000;       /* text, borders, filled buttons */
+    --on-ink: #D0E0C0;    /* text on top of filled (ink) things */
+    --panel: #7A8C70;     /* header, footer, hover fills */
+    --ink-hover: #333333; /* filled buttons on hover */
+    --muted: rgba(0, 0, 0, 0.55);
+}
+
+:root[data-theme="dark"] {
+    --bg: #0F380F;
+    --ink: #9BBC0F;
+    --on-ink: #0F380F;
+    --panel: #306230;
+    --ink-hover: #7C9A0C;
+    --muted: rgba(155, 188, 15, 0.55);
+}
+
 body {
     font-family: 'Inter', sans-serif; /* Changed for better readability */
-    background-color: #8CA17C; /* Brighter muted green background */
-    color: #000000; /* Black text */
+    background-color: var(--bg); /* Brighter muted green background */
+    color: var(--ink); /* Black text */
     image-rendering: pixelated; /* Ensure pixelation for all elements */
     min-height: 100vh;
     display: flex;
@@ -18,13 +37,13 @@ body {
 }
 
 .pixel-border {
-    border: 2px solid #000000; /* Black border */
+    border: 2px solid var(--ink); /* Black border */
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.25); /* Pixel drop shadow */
 }
 
 .pixel-button {
-    background-color: #000000; /* Black background */
-    color: #D0E0C0; /* Brighter green text */
+    background-color: var(--ink); /* Black background */
+    color: var(--on-ink); /* Brighter green text */
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
     padding-left: 1rem;
@@ -32,7 +51,7 @@ body {
     border-radius: 0; /* No rounded corners */
     font-weight: bold;
     font-size: 0.875rem; /* text-sm */
-    border: 1px solid #000000; /* Subtle border for button */
+    border: 1px solid var(--ink); /* Subtle border for button */
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.25); /* Pixel drop shadow */
     transition: all 0.05s ease-in-out;
     font-family: 'Press Start 2P', cursive;
@@ -40,15 +59,15 @@ body {
 }
 
 .pixel-button:hover {
-    background-color: #333333; /* Slightly lighter black on hover */
-    color: #E0F0D0; /* Even brighter green on hover */
+    background-color: var(--ink-hover); /* Slightly lighter black on hover */
+    color: var(--on-ink); /* Even brighter green on hover */
     transform: translate(0px, 0px); /* No movement on hover */
     box-shadow: none; /* No shadow on hover to simulate press */
 }
 
 .pixel-card {
-    background-color: #8CA17C; /* Brighter muted green for card background (matches body) */
-    border: 2px solid #000000; /* Black border */
+    background-color: var(--bg); /* Brighter muted green for card background (matches body) */
+    border: 2px solid var(--ink); /* Black border */
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.25); /* Pixel drop shadow */
     border-radius: 0; /* Sharp corners */
     padding: 1.5rem;
@@ -61,13 +80,13 @@ body {
 }
 
 .pixel-card h3 {
-    color: #000000; /* Black text for card content */
+    color: var(--ink); /* Black text for card content */
     text-align: left; /* Adjust text alignment for readability within cards */
 }
 
 .pixel-card p {
     font-family: 'Inter', sans-serif; /* Changed for better readability in summaries */
-    color: #000000; /* Black text for card content */
+    color: var(--ink); /* Black text for card content */
     text-align: left; /* Adjust text alignment for readability within cards */
     flex-grow: 1; /* Allow paragraph to take available space and push button down */
     overflow: hidden; /* Hide overflowing text within the paragraph */
@@ -121,7 +140,7 @@ body {
 @media (hover: hover) {
     .news-card:hover {
         transform: translate(-4px, -4px);
-        box-shadow: 6px 6px 0 #000000;
+        box-shadow: 6px 6px 0 var(--ink);
     }
 }
 
@@ -137,7 +156,7 @@ body {
 .time-ago {
     font-family: 'VT323', monospace;
     font-size: 1.2rem;
-    color: #000000;
+    color: var(--ink);
     text-transform: uppercase;
     white-space: nowrap;
 }
@@ -199,8 +218,8 @@ body {
 
 @media (hover: hover) {
     .news-card:hover h3 {
-        background-color: #000000;
-        color: #D0E0C0;
+        background-color: var(--ink);
+        color: var(--on-ink);
         text-shadow: none;
     }
 }
@@ -236,8 +255,8 @@ body {
     text-transform: uppercase;
     padding: 0.55rem 0.8rem;
     background-color: transparent;
-    color: #000000;
-    border: 2px solid #000000;
+    color: var(--ink);
+    border: 2px solid var(--ink);
     border-radius: 0;
     cursor: pointer;
     display: inline-flex;
@@ -247,16 +266,16 @@ body {
 }
 
 .filter-button:hover {
-    background-color: #7A8C70;
+    background-color: var(--panel);
 }
 
 .filter-button.is-active {
-    background-color: #000000;
-    color: #D0E0C0;
+    background-color: var(--ink);
+    color: var(--on-ink);
 }
 
 .filter-button:focus-visible {
-    outline: 3px solid #000000;
+    outline: 3px solid var(--ink);
     outline-offset: 2px;
 }
 
@@ -279,8 +298,8 @@ body {
 }
 
 .category-tag {
-    border: 2px solid #000000;
-    color: #000000;
+    border: 2px solid var(--ink);
+    color: var(--ink);
     font-family: 'Press Start 2P', cursive;
     font-size: 0.6rem;
     padding: 0.3rem 0.5rem;
@@ -299,7 +318,7 @@ body {
     font-family: 'Press Start 2P', cursive;
     font-size: 0.65rem;
     text-transform: uppercase;
-    color: #000000;
+    color: var(--ink);
 }
 
 @media (max-width: 768px) {
@@ -323,7 +342,7 @@ body {
     font-size: 0.75rem;
     line-height: 1.6;
     text-transform: uppercase;
-    color: #000000;
+    color: var(--ink);
     margin: -1rem 0 2rem;
 }
 
@@ -360,22 +379,22 @@ body {
     align-items: center;
     gap: 0.6rem;
     width: 100%;
-    border: 2px solid #000000;
+    border: 2px solid var(--ink);
     padding: 0.35rem 0.6rem;
     cursor: text;
     transition: box-shadow 0.08s steps(2), transform 0.08s steps(2);
 }
 
 .search-field:focus-within {
-    background-color: #7A8C70;
+    background-color: var(--panel);
     transform: translate(-2px, -2px);
-    box-shadow: 4px 4px 0 #000000;
+    box-shadow: 4px 4px 0 var(--ink);
 }
 
 .search-prompt {
     font-family: 'Press Start 2P', cursive;
     font-size: 0.8rem;
-    color: #000000;
+    color: var(--ink);
 }
 
 .search-input {
@@ -387,19 +406,19 @@ body {
     font-family: 'VT323', monospace;
     font-size: 1.6rem;
     line-height: 1.2;
-    color: #000000;
+    color: var(--ink);
     text-transform: uppercase;
 }
 
 .search-input::placeholder {
-    color: rgba(0, 0, 0, 0.55);
+    color: var(--muted);
 }
 
 .search-clear {
     font-family: 'Press Start 2P', cursive;
     font-size: 0.65rem;
-    background-color: #000000;
-    color: #D0E0C0;
+    background-color: var(--ink);
+    color: var(--on-ink);
     border: 0;
     padding: 0.45rem 0.55rem;
     cursor: pointer;
@@ -410,7 +429,7 @@ body {
 }
 
 .search-clear:hover {
-    background-color: #333333;
+    background-color: var(--ink-hover);
 }
 
 .search-status {
@@ -418,7 +437,7 @@ body {
     font-size: 1.3rem;
     line-height: 1;
     min-height: 1.3rem;
-    color: #000000;
+    color: var(--ink);
 }
 
 /* No flicker-in while typing or un-saving */
@@ -440,17 +459,17 @@ body {
     padding: 0.2rem;
     background: transparent;
     border: 0;
-    color: #000000;
+    color: var(--ink);
     cursor: pointer;
     transition: background-color 0.08s steps(2);
 }
 
 .save-button:hover {
-    background-color: #7A8C70;
+    background-color: var(--panel);
 }
 
 .save-button:focus-visible {
-    outline: 3px solid #000000;
+    outline: 3px solid var(--ink);
     outline-offset: 2px;
 }
 
@@ -467,5 +486,225 @@ body {
 @media (max-width: 768px) {
     .search-input {
         font-size: 1.4rem;
+    }
+}
+
+
+/* ===== STEP 6: header, footer, night toggle ===== */
+
+.site-header,
+.site-footer {
+    background-color: var(--panel);
+}
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    padding: 0.5rem 0.7rem;
+    background-color: transparent;
+    color: var(--ink);
+    border: 2px solid var(--ink);
+    border-radius: 0;
+    cursor: pointer;
+    transition: background-color 0.08s steps(2), color 0.08s steps(2);
+}
+
+.theme-toggle:hover {
+    background-color: var(--ink);
+    color: var(--on-ink);
+}
+
+.theme-toggle:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 2px;
+}
+
+.theme-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.social-link {
+    color: var(--ink);
+    display: inline-flex;
+    transition: color 0.08s steps(2);
+}
+
+.social-link:hover {
+    color: var(--ink-hover);
+}
+
+.social-icon {
+    width: 24px;
+    height: 24px;
+}
+
+
+/* ===== STEP 7: top story + tidy headlines ===== */
+
+.card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+/* Long headlines stop at 6 lines instead of stretching the card */
+.news-card h3 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 6;
+    line-clamp: 6;
+    overflow: hidden;
+}
+
+/* The big top story: colours flipped, like an inverted Game Boy screen */
+.featured-card {
+    background-color: var(--ink);
+    color: var(--on-ink);
+    border-color: var(--ink);
+}
+
+.featured-card h3,
+.featured-card p,
+.featured-card .time-ago,
+.featured-card .card-source,
+.featured-card .save-button {
+    color: var(--on-ink);
+}
+
+.featured-card h3 {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
+}
+
+.featured-card p {
+    font-size: 1.7rem;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+}
+
+.featured-card .category-tag {
+    border-color: var(--on-ink);
+    color: var(--on-ink);
+}
+
+.featured-badge {
+    background-color: var(--on-ink);
+    color: var(--ink);
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.6rem;
+    padding: 0.3rem 0.5rem;
+    border: 2px solid var(--on-ink);
+    text-transform: uppercase;
+}
+
+.featured-card .pixel-button {
+    background-color: var(--on-ink);
+    color: var(--ink);
+    border-color: var(--on-ink);
+}
+
+.featured-card .pixel-button:hover {
+    background-color: var(--panel);
+    color: var(--on-ink);
+}
+
+.featured-card .save-button:hover {
+    background-color: var(--ink-hover);
+}
+
+@media (hover: hover) {
+    .news-card.featured-card:hover h3 {
+        background-color: var(--on-ink);
+        color: var(--ink);
+    }
+}
+
+@media (min-width: 769px) {
+    .featured-card {
+        padding: 2rem;
+    }
+    .news-card.featured-card h3 {
+        font-size: 1.75rem;
+        line-height: 1.4;
+    }
+}
+
+
+/* ===== STEP 8: phone polish ===== */
+
+.pixel-button {
+    white-space: nowrap;
+}
+
+/* filter row: label on top, buttons underneath */
+.filter-bar {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0.6rem;
+}
+
+.filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+}
+
+.featured-card .card-meta {
+    margin-bottom: 1.25rem;
+}
+
+@media (max-width: 768px) {
+    /* one tidy scrolling row of buttons instead of three rows */
+    .filter-buttons {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        justify-content: safe center;
+        width: 100%;
+        overflow-x: auto;
+        padding: 0.2rem 0.2rem 0.7rem;
+        scrollbar-width: thin;
+        scrollbar-color: var(--ink) transparent;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .filter-button {
+        flex-shrink: 0;
+    }
+
+    /* header: keep the logo on one line */
+    .site-header a.pixel-font {
+        font-size: 1rem;
+        white-space: nowrap;
+        padding-left: 0;
+    }
+
+    .theme-toggle {
+        padding: 0.45rem 0.55rem;
+    }
+
+    /* card bottom row: source can wrap, button never does */
+    .card-footer {
+        gap: 0.5rem;
+    }
+
+    .card-source {
+        font-size: 0.55rem;
+        line-height: 1.5;
+        min-width: 0;
+    }
+
+    .pixel-button {
+        font-size: 0.75rem;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
     }
 }
