@@ -25,7 +25,8 @@ const FEEDS = [
     { name: 'ZDNet', url: 'https://www.zdnet.com/news/rss.xml' },
     { name: 'Digital Trends', url: 'https://www.digitaltrends.com/feed/' },
     // AI
-    { name: 'VentureBeat', url: 'https://venturebeat.com/feed/' },
+    { name: 'The Decoder', url: 'https://the-decoder.com/feed/' },
+    { name: 'MIT Technology Review', url: 'https://www.technologyreview.com/feed/' },
     // security
     { name: 'BleepingComputer', url: 'https://www.bleepingcomputer.com/feed/' },
     { name: 'The Hacker News', url: 'https://feeds.feedburner.com/TheHackersNews' },
