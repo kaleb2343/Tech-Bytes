@@ -13,7 +13,12 @@ const REFRESH_MS = 10 * 60 * 1000; // check for new stories every 10 minutes (th
 const SAVED_KEY = 'techbytes.saved.v1';
 const THEME_KEY = 'techbytes.theme';
 const MAX_SAVED = 100;
-const PAGE_SIZE = 30; // cards shown at first, and added by each LOAD MORE
+const PHONE_WIDTH = '(max-width: 768px)';
+
+// Cards shown at first, and added by each LOAD MORE: 12 on a phone, 30 on bigger screens
+function pageSize() {
+    return window.matchMedia(PHONE_WIDTH).matches ? 12 : 30;
+}
 
 // Stories containing these words are dropped (spam, promos, off-topic)
 const BLOCKED_WORDS = [
@@ -487,7 +492,7 @@ function renderNews(newsData, animate, withFeatured) {
         restList = newsData.filter((item) => item !== top);
         newsContainer.appendChild(buildCard(top, 0, true));
     }
-    appendCards(PAGE_SIZE);
+    appendCards(pageSize());
 }
 
 // Adds the next batch of cards, then the LOAD MORE button if stories are left
@@ -612,7 +617,7 @@ newsContainer.addEventListener('click', (event) => {
     }
     if (event.target.closest('.load-more-button')) {
         newsContainer.classList.remove('no-anim'); // new cards fade in
-        appendCards(PAGE_SIZE);
+        appendCards(pageSize());
         const next = newsContainer.querySelector('.load-more-button');
         if (next) next.focus({ preventScroll: true });
         return;
@@ -718,7 +723,7 @@ async function fetchNews() {
             hasRendered = true;
             showCurrent(firstDraw);
             // if the reader had pressed LOAD MORE, keep those cards on screen
-            if (!firstDraw && alreadyShown > PAGE_SIZE) appendCards(alreadyShown - PAGE_SIZE);
+            if (!firstDraw && alreadyShown > pageSize()) appendCards(alreadyShown - pageSize());
         }
     } catch (error) {
         console.error('Could not fetch news:', error);
