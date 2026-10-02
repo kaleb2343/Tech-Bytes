@@ -96,6 +96,17 @@ const HEART_OUTLINE = [
     '....##....',
 ];
 
+const ARROW_UP_ICON = [
+    '.....##.....',
+    '....####....',
+    '...######...',
+    '..########..',
+    '.....##.....',
+    '.....##.....',
+    '.....##.....',
+    '.....##.....',
+];
+
 const MOON_ICON = [
     '............',
     '....#.......',
@@ -689,6 +700,44 @@ themeToggle.addEventListener('click', () => {
     renderThemeToggle();
 });
 
+/* ---------- back to top ---------- */
+
+function setupBackToTop() {
+    const button = el('button', 'back-to-top');
+    button.type = 'button';
+    button.setAttribute('aria-label', 'Back to top');
+    button.title = 'Back to top';
+    button.appendChild(makeIcon(ARROW_UP_ICON, 'back-to-top-icon'));
+    document.body.appendChild(button);
+
+    const footer = document.querySelector('.site-footer');
+    let waiting = false;
+
+    function update() {
+        waiting = false;
+        // show it once the reader has scrolled about a screen and a half
+        button.classList.toggle('is-visible', window.scrollY > window.innerHeight * 1.5);
+        // never sit on top of the footer: rise with it
+        const overlap = footer ? Math.max(0, window.innerHeight - footer.getBoundingClientRect().top) : 0;
+        button.style.bottom = `${16 + overlap}px`;
+    }
+
+    window.addEventListener('scroll', () => {
+        if (!waiting) {
+            waiting = true;
+            window.requestAnimationFrame(update);
+        }
+    }, { passive: true });
+    window.addEventListener('resize', update);
+
+    button.addEventListener('click', () => {
+        const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: calm ? 'auto' : 'smooth' });
+    });
+
+    update();
+}
+
 /* ---------- fetching ---------- */
 
 async function fetchNews() {
@@ -736,6 +785,7 @@ async function fetchNews() {
 
 document.addEventListener('DOMContentLoaded', () => {
     renderThemeToggle();
+    setupBackToTop();
     fetchNews();
     setInterval(fetchNews, REFRESH_MS);
 });
