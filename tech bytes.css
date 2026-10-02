@@ -1104,6 +1104,8 @@ body {
         opacity: 0.2;
     }
 }
+
+
 /* ===== PHONE FIRST SCREEN: tighter top area ===== */
 @media (max-width: 768px) {
     .site-nav {
@@ -1161,6 +1163,8 @@ body {
         margin-bottom: 0.9rem;
     }
 }
+
+
 /* ===== CARD FOOTER: keep "VIA SOURCE" tidy on mid-size screens ===== */
 .card-source {
     min-width: 0;
@@ -1178,79 +1182,5 @@ body {
         font-size: 0.75rem;
         padding-left: 0.75rem;
         padding-right: 0.75rem;
-    }
-}
-/* ===== GAME BOY SCREEN FRAME ===== */
-.gb-bezel {
-    background-color: #3a3a46;
-    border: 3px solid #1c1c24;
-    border-radius: 16px 16px 44px 16px;
-    padding: 0.7rem 1rem 1.6rem;
-    box-shadow: 6px 6px 0 var(--ink);
-}
-
-.gb-top {
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    padding: 0 0.3rem 0.6rem;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 0.55rem;
-    line-height: 1.4;
-    text-transform: uppercase;
-    color: #b4b4c2;
-}
-
-.gb-led {
-    flex-shrink: 0;
-    width: 10px;
-    height: 10px;
-    background-color: #e0242e;
-    border: 2px solid #1c1c24;
-    border-radius: 50%;
-    animation: gb-blink 2.4s steps(1) infinite;
-}
-
-@keyframes gb-blink {
-    0%, 85% { opacity: 1; }
-    90%, 100% { opacity: 0.35; }
-}
-
-.gb-updated {
-    margin-left: auto;
-    white-space: nowrap;
-}
-
-.gb-screen {
-    background-color: var(--bg);
-    border: 3px solid #1c1c24;
-    border-radius: 6px;
-    padding: 1.25rem;
-    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.25);
-}
-
-@media (max-width: 768px) {
-    .gb-bezel {
-        border-radius: 12px 12px 28px 12px;
-        padding: 0.45rem 0.5rem 1rem;
-        box-shadow: 4px 4px 0 var(--ink);
-    }
-
-    .gb-power {
-        display: none;
-    }
-
-    .gb-top {
-        padding-bottom: 0.4rem;
-    }
-
-    .gb-screen {
-        padding: 0.6rem;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .gb-led {
-        animation: none;
     }
 }
