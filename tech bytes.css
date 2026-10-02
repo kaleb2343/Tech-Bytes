@@ -816,3 +816,92 @@ body {
         transition: none;
     }
 }
+
+
+/* ===== STEP 11: credits-screen footer ===== */
+
+.site-footer {
+    position: relative;
+}
+
+/* dashed pixel edge above the footer */
+.site-footer::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -10px;
+    height: 4px;
+    background: repeating-linear-gradient(90deg, var(--ink) 0 8px, transparent 8px 16px);
+}
+
+.footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+}
+
+.footer-text {
+    flex: 1 1 18rem;
+    min-width: 0;
+}
+
+.footer-credits {
+    font-family: 'VT323', monospace;
+    font-size: 1.4rem;
+    line-height: 1.1;
+    max-width: 34rem;
+    color: var(--ink);
+}
+
+.footer-made {
+    margin-top: 0.75rem;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    color: var(--ink);
+}
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.footer-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 0.75rem 0.9rem;
+    color: var(--ink);
+    border: 2px solid var(--ink);
+    transition: background-color 0.08s steps(2), color 0.08s steps(2);
+}
+
+.footer-link:hover {
+    background-color: var(--ink);
+    color: var(--on-ink);
+}
+
+.footer-link:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+    .footer-links {
+        width: 100%;
+    }
+
+    .footer-link {
+        flex: 1 1 0;
+        font-size: 0.6rem;
+        padding: 0.7rem 0.4rem;
+    }
+}
