@@ -7,6 +7,7 @@ const searchInput = document.getElementById('search-input');
 const searchClear = document.getElementById('search-clear');
 const searchStatus = document.getElementById('search-status');
 const themeToggle = document.getElementById('theme-toggle');
+const updatedLabel = document.getElementById('gb-updated');
 
 const NEWS_URL = '/.netlify/functions/fetch-news';
 const REFRESH_MS = 10 * 60 * 1000; // check for new stories every 10 minutes (the function caches for 5)
@@ -193,6 +194,7 @@ let restList = []; // the cards under the top story
 let shownCount = 0; // how many of them are on screen
 let hasRendered = false;
 let isLoading = false;
+let lastUpdatedAt = 0; // when the news was last fetched (shown on the screen frame)
 
 /* ---------- saved stories (kept in this browser only) ---------- */
 
@@ -730,6 +732,19 @@ themeToggle.addEventListener('click', () => {
     renderThemeToggle();
 });
 
+/* ---------- "UPDATED x AGO" on the screen frame ---------- */
+
+function renderUpdated() {
+    if (!updatedLabel || !lastUpdatedAt) return;
+    const minutes = Math.floor((Date.now() - lastUpdatedAt) / 60000);
+    let text;
+    if (minutes < 1) text = 'JUST NOW';
+    else if (minutes < 60) text = `${minutes} MIN AGO`;
+    else if (minutes < 1440) text = `${Math.floor(minutes / 60)}H AGO`;
+    else text = `${Math.floor(minutes / 1440)}D AGO`;
+    updatedLabel.textContent = `UPDATED ${text}`;
+}
+
 /* ---------- back to top ---------- */
 
 function setupBackToTop() {
@@ -775,6 +790,7 @@ function loadCache() {
         const saved = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
         if (!saved || !Array.isArray(saved.articles)) return null;
         if (Date.now() - saved.savedAt > CACHE_MAX_AGE_MS) return null;
+        lastUpdatedAt = saved.savedAt;
         return saved.articles;
     } catch (e) {
         return null;
@@ -821,6 +837,8 @@ async function fetchNews() {
         const rawArticles = data.articles || [];
         const articles = prepareArticles(rawArticles);
         saveCache(rawArticles);
+        lastUpdatedAt = Date.now();
+        renderUpdated();
 
         // Only redraw when the stories actually changed
         const changed =
@@ -840,6 +858,7 @@ async function fetchNews() {
         console.error('Could not fetch news:', error);
         // Never wipe stories the visitor is already reading
         if (!hasRendered) {
+            if (updatedLabel) updatedLabel.textContent = 'NO SIGNAL';
             showError(error.name === 'AbortError' ? 'The news took too long to answer.' : error.message);
         }
     } finally {
@@ -859,6 +878,8 @@ function restartFetch() {
 document.addEventListener('DOMContentLoaded', () => {
     renderThemeToggle();
     setupBackToTop();
+    renderUpdated();
+    setInterval(renderUpdated, 30000);
 
     // Returning visitor: show the saved copy of the last news straight away,
     // then swap in the fresh news quietly when it arrives.
