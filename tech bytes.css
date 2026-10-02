@@ -1104,3 +1104,79 @@ body {
         opacity: 0.2;
     }
 }
+/* ===== PHONE FIRST SCREEN: tighter top area ===== */
+@media (max-width: 768px) {
+    .site-nav {
+        padding-top: 0.5rem;
+    }
+
+    .post {
+        height: 10px;
+    }
+
+    .ground {
+        margin-top: 10px;
+    }
+
+    main.flex-grow {
+        padding-top: 0.9rem;
+    }
+
+    main section.mb-12 {
+        margin-bottom: 1.5rem;
+    }
+
+    main h2.pixel-font {
+        font-size: 1.05rem;
+        line-height: 1.2;
+        margin-bottom: 0.7rem;
+    }
+
+    .tagline {
+        font-size: 0.55rem;
+        margin: 0 0 0.4rem;
+    }
+
+    .tagline-desc {
+        font-size: 1.1rem;
+        line-height: 1.1;
+        margin-bottom: 0.7rem;
+    }
+
+    .filter-label {
+        display: none;
+    }
+
+    .filter-bar {
+        margin-bottom: 0.4rem;
+        gap: 0;
+    }
+
+    .filter-buttons {
+        padding-bottom: 0.45rem;
+    }
+
+    .search-bar {
+        gap: 0;
+        margin-bottom: 0.9rem;
+    }
+}
+/* ===== CARD FOOTER: keep "VIA SOURCE" tidy on mid-size screens ===== */
+.card-source {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (min-width: 769px) and (max-width: 1280px) {
+    .card-source {
+        font-size: 0.55rem;
+    }
+
+    .card-footer .pixel-button {
+        font-size: 0.75rem;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+}
