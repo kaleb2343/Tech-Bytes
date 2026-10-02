@@ -19,9 +19,10 @@ const THEME_KEY = 'techbytes.theme';
 const MAX_SAVED = 100;
 const PHONE_WIDTH = '(max-width: 768px)';
 
-// Cards shown at first, and added by each LOAD MORE: 12 on a phone, 30 on bigger screens
+// Cards shown at first, and added by each LOAD MORE: 12 on a phone, 18 on bigger screens
+// (18 fills the rows exactly: 6 rows of 3 on a computer, 9 rows of 2 on a tablet)
 function pageSize() {
-    return window.matchMedia(PHONE_WIDTH).matches ? 12 : 30;
+    return window.matchMedia(PHONE_WIDTH).matches ? 12 : 18;
 }
 
 // Stories containing these words are dropped (spam, promos, off-topic)
