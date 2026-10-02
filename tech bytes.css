@@ -1032,3 +1032,75 @@ body {
     .post-left { left: 22px; }
     .post-right { right: 22px; }
 }
+
+
+/* ===== STEP 13: loading placeholders ===== */
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.skeleton-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    min-height: 16rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: var(--bg);
+    border: 2px solid var(--ink);
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.skeleton-wide {
+    grid-column: 1 / -1;
+    min-height: 14rem;
+}
+
+.sk {
+    display: block;
+    background-color: var(--ink);
+    opacity: 0.16;
+    animation: sk-blink 1.2s steps(2) infinite;
+}
+
+.sk-tag { width: 5.5rem; height: 1.5rem; }
+.sk-title { width: 92%; height: 1.4rem; }
+.sk-title.short { width: 62%; }
+.sk-line { width: 100%; height: 0.9rem; }
+.sk-line.short { width: 70%; }
+.sk-btn { width: 8rem; height: 2.5rem; margin-left: auto; margin-top: auto; }
+
+.skeleton-card:nth-of-type(even) .sk { animation-delay: 0.3s; }
+.skeleton-card:nth-of-type(3n) .sk { animation-delay: 0.6s; }
+
+@keyframes sk-blink {
+    0%   { opacity: 0.12; }
+    50%  { opacity: 0.3; }
+}
+
+@media (max-width: 768px) {
+    .skeleton-extra {
+        display: none;
+    }
+
+    .skeleton-card {
+        min-height: 13rem;
+        padding: 1.1rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sk {
+        animation: none;
+        opacity: 0.2;
+    }
+}

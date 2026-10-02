@@ -11,6 +11,10 @@ const themeToggle = document.getElementById('theme-toggle');
 const NEWS_URL = '/.netlify/functions/fetch-news';
 const REFRESH_MS = 10 * 60 * 1000; // check for new stories every 10 minutes (the function caches for 5)
 const SAVED_KEY = 'techbytes.saved.v1';
+const CACHE_KEY = 'techbytes.news.v1'; // the last news, kept in the browser for instant loading
+const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // never show a saved copy older than a day
+const SLOW_NOTICE_MS = 8000; // say "still loading" after 8 seconds
+const FETCH_TIMEOUT_MS = 20000; // give up after 20 seconds
 const THEME_KEY = 'techbytes.theme';
 const MAX_SAVED = 100;
 const PHONE_WIDTH = '(max-width: 768px)';
@@ -583,13 +587,39 @@ function showCurrent(animate = true) {
     renderNews(list, animate, withFeatured);
 }
 
+// A grey-block "page" that shows where the stories will appear
+function skeletonCard(extraClass) {
+    const card = el('div', `skeleton-card ${extraClass}`.trim());
+    card.setAttribute('aria-hidden', 'true');
+    ['sk sk-tag', 'sk sk-title', 'sk sk-title short', 'sk sk-line', 'sk sk-line', 'sk sk-line short', 'sk sk-btn'].forEach((cls) => {
+        card.appendChild(el('span', cls));
+    });
+    return card;
+}
+
 function showLoading() {
     filterBar.hidden = true;
     searchBar.hidden = true;
     newsContainer.innerHTML = '';
-    const card = el('div', 'pixel-card flex justify-center items-center h-48 col-span-full');
-    card.appendChild(el('p', 'pixel-font text-lg blink', 'Loading news'));
-    newsContainer.appendChild(card);
+    newsContainer.classList.add('no-anim');
+    const status = el('p', 'visually-hidden', 'Loading news');
+    status.setAttribute('role', 'status');
+    newsContainer.appendChild(status);
+    newsContainer.appendChild(skeletonCard('skeleton-wide'));
+    for (let i = 0; i < 6; i++) {
+        newsContainer.appendChild(skeletonCard(i >= 2 ? 'skeleton-extra' : ''));
+    }
+}
+
+// Shown on top of the grey blocks when the news is taking a long time
+function showSlowNotice() {
+    if (hasRendered || !newsContainer.querySelector('.skeleton-card')) return;
+    if (newsContainer.querySelector('.slow-card')) return;
+    const card = el('div', 'pixel-card col-span-full error-card slow-card');
+    card.appendChild(el('h3', 'pixel-font text-xl mb-4 blink', 'Still loading'));
+    card.appendChild(el('p', 'text-base mb-6', 'This is taking longer than usual. You can keep waiting, or try again.'));
+    card.appendChild(el('button', 'text-sm pixel-button retry-button', 'Try again'));
+    newsContainer.prepend(card);
 }
 
 function showError(message) {
@@ -634,8 +664,7 @@ newsContainer.addEventListener('click', (event) => {
         return;
     }
     if (event.target.closest('.retry-button')) {
-        showLoading();
-        fetchNews();
+        restartFetch();
     }
 });
 
@@ -738,14 +767,43 @@ function setupBackToTop() {
     update();
 }
 
+/* ---------- the saved copy of the last news ---------- */
+
+function loadCache() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+        if (!saved || !Array.isArray(saved.articles)) return null;
+        if (Date.now() - saved.savedAt > CACHE_MAX_AGE_MS) return null;
+        return saved.articles;
+    } catch (e) {
+        return null;
+    }
+}
+
+function saveCache(articles) {
+    try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ savedAt: Date.now(), articles }));
+    } catch (e) {
+        /* storage full or blocked: next visit just loads normally */
+    }
+}
+
 /* ---------- fetching ---------- */
+
+let requestId = 0;
+let activeController = null;
 
 async function fetchNews() {
     if (isLoading) return;
     isLoading = true;
+    const myId = ++requestId;
+    const controller = new AbortController();
+    activeController = controller;
+    const hardStop = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+    const slowTimer = hasRendered ? null : setTimeout(showSlowNotice, SLOW_NOTICE_MS);
 
     try {
-        const response = await fetch(NEWS_URL);
+        const response = await fetch(NEWS_URL, { signal: controller.signal });
 
         if (!response.ok) {
             let message = response.statusText;
@@ -759,7 +817,9 @@ async function fetchNews() {
         }
 
         const data = await response.json();
-        const articles = prepareArticles(data.articles || []);
+        const rawArticles = data.articles || [];
+        const articles = prepareArticles(rawArticles);
+        saveCache(rawArticles);
 
         // Only redraw when the stories actually changed
         const changed =
@@ -775,17 +835,42 @@ async function fetchNews() {
             if (!firstDraw && alreadyShown > pageSize()) appendCards(alreadyShown - pageSize());
         }
     } catch (error) {
+        if (myId !== requestId) return; // a newer request took over (Try again)
         console.error('Could not fetch news:', error);
         // Never wipe stories the visitor is already reading
-        if (!hasRendered) showError(error.message);
+        if (!hasRendered) {
+            showError(error.name === 'AbortError' ? 'The news took too long to answer.' : error.message);
+        }
     } finally {
-        isLoading = false;
+        clearTimeout(hardStop);
+        clearTimeout(slowTimer);
+        if (myId === requestId) isLoading = false;
     }
+}
+
+function restartFetch() {
+    if (activeController) activeController.abort();
+    isLoading = false;
+    showLoading();
+    fetchNews();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     renderThemeToggle();
     setupBackToTop();
+
+    // Returning visitor: show the saved copy of the last news straight away,
+    // then swap in the fresh news quietly when it arrives.
+    const cached = loadCache();
+    if (cached) {
+        const stories = prepareArticles(cached);
+        if (stories.length > 0) {
+            currentNews = stories;
+            hasRendered = true;
+            showCurrent(true);
+        }
+    }
+
     fetchNews();
     setInterval(fetchNews, REFRESH_MS);
 });
