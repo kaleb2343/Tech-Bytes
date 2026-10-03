@@ -88,7 +88,7 @@ Tech-Bytes/
 ├── index.html                  Page structure, share preview tags, theme script
 ├── tech bytes.css              Design system and all custom styles
 ├── tech bytes.js               Rendering, channels, search, saved stories, caching
-├── tailwind.css                Pre-built Tailwind utilities
+├── tailwind.css                Pre-built Tailwind utilities (see note below)
 ├── netlify/
 │   └── functions/
 │       └── fetch-news.js       Feed reader and health check
@@ -96,6 +96,34 @@ Tech-Bytes/
 ├── site.webmanifest            Home-screen metadata
 └── favicon and icon files
 ```
+
+## Run it locally
+
+You need Node 18 or newer and the Netlify CLI, which runs the site and the function together.
+
+```bash
+git clone https://github.com/kaleb2343/Tech-Bytes.git
+cd Tech-Bytes
+npm install -g netlify-cli
+netlify dev
+```
+
+Then open `http://localhost:8888`. Opening `index.html` directly will show an error card, because the news comes from the function.
+
+## Configuration
+
+Everything you are likely to tweak is near the top of one file.
+
+| To change | Where |
+| --- | --- |
+| Which feeds are read, or timeouts and limits | `FEEDS` and the constants at the top of `fetch-news.js` |
+| Which words place a story in a channel | `CATEGORY_KEYWORDS` in `tech bytes.js` |
+| Spam and promo words that are dropped | `BLOCKED_WORDS` in `tech bytes.js` |
+| Stories per page | `pageSize()` in `tech bytes.js` |
+| How often the page checks for news | `REFRESH_MS` in `tech bytes.js` |
+| Colors for day and night | the `:root` variables in `tech bytes.css` |
+
+Channel order of priority is Security, then AI, then Gaming, then Gadgets. The first match wins.
 
 ## Design system
 
@@ -126,9 +154,19 @@ All colors are CSS variables, so night mode is a single attribute switch on the 
 - Saved stories are stored in the browser, so they do not sync between devices.
 - The feed parser is intentionally lightweight, not a full XML parser.
 
+## Regenerating `tailwind.css`
+
+`tailwind.css` only contains the Tailwind classes used when it was built. If you add a new Tailwind class to `index.html` or `tech bytes.js`, rebuild it with the Tailwind v3 CLI:
+
+```bash
+npx tailwindcss@3 -i input.css -o tailwind.css --content "./index.html,./tech bytes.js"
+```
+
+where `input.css` contains the three lines `@tailwind base;`, `@tailwind components;` and `@tailwind utilities;`.
+
 ## Attribution
 
-Tech Bytes does not host or copy articles. It shows headlines and short summaries from publishers' public feeds and links every card back to the original article. All headlines and content belong to their publishers. Social icons are from [Font Awesome Free](https://fontawesome.com/license/free) (CC BY 4.0).
+Tech Bytes does not host or copy articles. It shows headlines and short summaries from publishers' public feeds and links every card back to the original article. All headlines and content belong to their publishers.
 
 ## Ideas for later
 
@@ -138,15 +176,6 @@ Tech Bytes does not host or copy articles. It shows headlines and short summarie
 
 ## Author
 
-**Kaleb Dawit**
+**Kaleb Dawit**, front-end developer and designer.
 
-Designer · Marketer · Developer
-
-<a href="https://github.com/kaleb2343"><img src="assets/icons/github.svg" alt="" width="18" height="18">&nbsp;GitHub</a> &nbsp;&nbsp;
-<a href="https://www.linkedin.com/in/kaleb-dawit-678b26278/"><img src="assets/icons/linkedin.svg" alt="" width="18" height="18">&nbsp;LinkedIn</a> &nbsp;&nbsp;
-<a href="https://x.com/Kaleb2343"><img src="assets/icons/x.svg" alt="" width="18" height="18">&nbsp;X</a> &nbsp;&nbsp;
-<a href="https://kalebdawit.vercel.app"><img src="assets/icons/portfolio.svg" alt="" width="18" height="18">&nbsp;Portfolio</a>
-
-## License
-
-Copyright © 2026 Kaleb Dawit. All rights reserved. The source is public for viewing only. Please do not copy, redistribute or reuse the code, design or branding without written permission. See [LICENSE](LICENSE).
+[GitHub](https://github.com/kaleb2343) · [LinkedIn](https://www.linkedin.com/in/kaleb-dawit-678b26278/) · [X](https://x.com/Kaleb2343) · [Portfolio](https://kalebdawit.vercel.app)
