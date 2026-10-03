@@ -1,22 +1,14 @@
 {
-    "name": "Tech Bytes",
-    "short_name": "Tech Bytes",
-    "description": "Fresh tech, AI, gaming and security headlines in a retro Game Boy style.",
-    "start_url": "/",
-    "scope": "/",
-    "icons": [
-        {
-            "src": "/android-chrome-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "/android-chrome-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
-    ],
-    "theme_color": "#8CA17C",
-    "background_color": "#8CA17C",
-    "display": "standalone"
+  "name": "Tech Bytes",
+  "short_name": "Tech Bytes",
+  "description": "Tech, AI, gaming and security headlines in a retro Game Boy style.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#8CA17C",
+  "theme_color": "#8CA17C",
+  "icons": [
+    { "src": "/icons/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
+  ]
 }

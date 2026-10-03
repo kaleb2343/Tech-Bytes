@@ -2,7 +2,7 @@
 
 **Tech, AI, gaming and security headlines from the best sites on the web, in one calm place, wrapped in a retro Game Boy interface.**
 
-**[Open the live site](https://tech-byte-news.netlify.app/)**
+**[Open the live site](https://techbytes-news.netlify.app/)**
 
 Tech Bytes pulls fresh stories from about 28 publisher feeds, sorts them into four channels, removes spam and near-duplicates, and shows them in a pixel-art interface with day and night modes. Every card links back to the original article.
 
@@ -52,19 +52,20 @@ It is built with plain HTML, CSS and JavaScript. There is no framework and no bu
 - Near-duplicate stories are merged, so five articles about the same headphones appear as one or two.
 - A back-to-top button that rises above the footer instead of covering it.
 - Keyboard focus styles, accessible labels, and reduced-motion support.
+- Hardened delivery: a strict Content Security Policy and other security headers, set in `_headers`.
 
 ## How it works
 
 ```mermaid
 flowchart LR
     A["~28 RSS / Atom feeds"] --> B["Netlify Function<br/>fetch-news.js"]
-    B -->|"JSON, cached 5 min"| C["Browser<br/>index.html + tech bytes.js"]
+    B -->|"JSON, cached 5 min"| C["Browser<br/>index.html + app.js"]
     C <--> D[("localStorage<br/>saved stories, last news, theme")]
 ```
 
 1. **The function** (`netlify/functions/fetch-news.js`) requests every feed in parallel with a 3-second timeout per feed. It parses RSS and Atom without any dependency, keeps the newest 15 items per feed from the last 7 days, removes repeated links, and returns up to 100 stories sorted newest first.
 2. **Netlify's CDN** keeps that answer for 5 minutes and serves a slightly old copy for up to 15 more minutes while it refreshes, so visitors rarely wait on the feeds.
-3. **The page** (`tech bytes.js`) cleans titles and summaries, sorts each story into a channel, drops spam and off-topic items, merges near-duplicates, and renders the cards. It checks for new stories every 10 minutes and only redraws when something changed.
+3. **The page** (`app.js`) cleans titles and summaries, sorts each story into a channel, drops spam and off-topic items, merges near-duplicates, and renders the cards. It checks for new stories every 10 minutes and only redraws when something changed.
 
 ### Health check
 
@@ -86,44 +87,19 @@ Open `/.netlify/functions/fetch-news?debug=1` on the site. It lists every feed w
 ```
 Tech-Bytes/
 ├── index.html                  Page structure, share preview tags, theme script
-├── tech bytes.css              Design system and all custom styles
-├── tech bytes.js               Rendering, channels, search, saved stories, caching
-├── tailwind.css                Pre-built Tailwind utilities (see note below)
+├── style.css                   Design system and all custom styles
+├── app.js                      Rendering, channels, search, saved stories, caching
+├── tailwind.css                Pre-built Tailwind utilities
 ├── netlify/
 │   └── functions/
 │       └── fetch-news.js       Feed reader and health check
+├── icons/                      Favicon and app icons
 ├── screenshots/                Images used in this README
 ├── site.webmanifest            Home-screen metadata
-└── favicon and icon files
+├── _headers                    Security headers sent by Netlify
+├── LICENSE
+└── README.md
 ```
-
-## Run it locally
-
-You need Node 18 or newer and the Netlify CLI, which runs the site and the function together.
-
-```bash
-git clone https://github.com/kaleb2343/Tech-Bytes.git
-cd Tech-Bytes
-npm install -g netlify-cli
-netlify dev
-```
-
-Then open `http://localhost:8888`. Opening `index.html` directly will show an error card, because the news comes from the function.
-
-## Configuration
-
-Everything you are likely to tweak is near the top of one file.
-
-| To change | Where |
-| --- | --- |
-| Which feeds are read, or timeouts and limits | `FEEDS` and the constants at the top of `fetch-news.js` |
-| Which words place a story in a channel | `CATEGORY_KEYWORDS` in `tech bytes.js` |
-| Spam and promo words that are dropped | `BLOCKED_WORDS` in `tech bytes.js` |
-| Stories per page | `pageSize()` in `tech bytes.js` |
-| How often the page checks for news | `REFRESH_MS` in `tech bytes.js` |
-| Colors for day and night | the `:root` variables in `tech bytes.css` |
-
-Channel order of priority is Security, then AI, then Gaming, then Gadgets. The first match wins.
 
 ## Design system
 
@@ -154,16 +130,6 @@ All colors are CSS variables, so night mode is a single attribute switch on the 
 - Saved stories are stored in the browser, so they do not sync between devices.
 - The feed parser is intentionally lightweight, not a full XML parser.
 
-## Regenerating `tailwind.css`
-
-`tailwind.css` only contains the Tailwind classes used when it was built. If you add a new Tailwind class to `index.html` or `tech bytes.js`, rebuild it with the Tailwind v3 CLI:
-
-```bash
-npx tailwindcss@3 -i input.css -o tailwind.css --content "./index.html,./tech bytes.js"
-```
-
-where `input.css` contains the three lines `@tailwind base;`, `@tailwind components;` and `@tailwind utilities;`.
-
 ## Attribution
 
 Tech Bytes does not host or copy articles. It shows headlines and short summaries from publishers' public feeds and links every card back to the original article. All headlines and content belong to their publishers.
@@ -176,6 +142,12 @@ Tech Bytes does not host or copy articles. It shows headlines and short summarie
 
 ## Author
 
-**Kaleb Dawit**, front-end developer and designer.
+**Kaleb Dawit**
+
+Designer · Marketer · Developer
 
 [GitHub](https://github.com/kaleb2343) · [LinkedIn](https://www.linkedin.com/in/kaleb-dawit-678b26278/) · [X](https://x.com/Kaleb2343) · [Portfolio](https://kalebdawit.vercel.app)
+
+## License
+
+Copyright © 2026 Kaleb Dawit. All rights reserved. The source is public for viewing only. Please do not copy, redistribute or reuse the code, design or branding without written permission. See [LICENSE](LICENSE).
