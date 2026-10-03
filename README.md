@@ -128,7 +128,7 @@ All colors are CSS variables, so night mode is a single attribute switch on the 
 
 ## Attribution
 
-Tech Bytes does not host or copy articles. It shows headlines and short summaries from publishers' public feeds and links every card back to the original article. All headlines and content belong to their publishers.
+Tech Bytes does not host or copy articles. It shows headlines and short summaries from publishers' public feeds and links every card back to the original article. All headlines and content belong to their publishers. Social icons are from [Font Awesome Free](https://fontawesome.com/license/free) (CC BY 4.0).
 
 ## Ideas for later
 
@@ -138,9 +138,14 @@ Tech Bytes does not host or copy articles. It shows headlines and short summarie
 
 ## Author
 
-**Kaleb Dawit**, front-end developer and designer.
+**Kaleb Dawit**
 
-[GitHub](https://github.com/kaleb2343) · [LinkedIn](https://www.linkedin.com/in/kaleb-dawit-678b26278/) · [X](https://x.com/Kaleb2343) · [Portfolio](https://kalebdawit.vercel.app)
+Designer · Marketer · Developer
+
+<a href="https://github.com/kaleb2343"><img src="assets/icons/github.svg" alt="" width="18" height="18">&nbsp;GitHub</a> &nbsp;&nbsp;
+<a href="https://www.linkedin.com/in/kaleb-dawit-678b26278/"><img src="assets/icons/linkedin.svg" alt="" width="18" height="18">&nbsp;LinkedIn</a> &nbsp;&nbsp;
+<a href="https://x.com/Kaleb2343"><img src="assets/icons/x.svg" alt="" width="18" height="18">&nbsp;X</a> &nbsp;&nbsp;
+<a href="https://kalebdawit.vercel.app"><img src="assets/icons/portfolio.svg" alt="" width="18" height="18">&nbsp;Portfolio</a>
 
 ## License
 
