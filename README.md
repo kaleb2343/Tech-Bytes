@@ -111,7 +111,7 @@ The look is a monochrome handheld palette with sharp corners, 2px borders and st
 | Ink (text, borders) | `#000000` | `#9BBC0F` |
 | On-ink (text on filled areas) | `#D0E0C0` | `#0F380F` |
 | Panel | `#7A8C70` | `#306230` |
-
+    
 All colors are CSS variables, so night mode is a single attribute switch on the page.
 
 ## Decisions and trade-offs
