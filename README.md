@@ -7,7 +7,7 @@
 Tech Bytes pulls fresh stories from about 28 publisher feeds, sorts them into four channels, removes spam and near-duplicates, and shows them in a pixel-art interface with day and night modes. Every card links back to the original article.
 
 It is built with plain HTML, CSS and JavaScript. There is no framework and no build step, and the only server code is one small Netlify Function.
-               
+                
 <table>
   <tr>
     <td align="center"><b>Day</b></td>
