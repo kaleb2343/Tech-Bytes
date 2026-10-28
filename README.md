@@ -1,7 +1,7 @@
 # Tech Bytes
 
 **Tech, AI, gaming and security headlines from the best sites on the web, in one calm place, wrapped in a retro Game Boy interface.**
-
+ 
 **[Open the live site](https://techbytes-news.netlify.app/)**
 
 Tech Bytes pulls fresh stories from about 28 publisher feeds, sorts them into four channels, removes spam and near-duplicates, and shows them in a pixel-art interface with day and night modes. Every card links back to the original article.
