@@ -1184,3 +1184,68 @@ body {
         padding-right: 0.75rem;
     }
 }
+/* ===== RECAP: TECH BOT BOX ===== */
+.bot-panel {
+    border: 2px solid var(--ink);
+    background-color: var(--panel);
+    padding: 0.9rem 1rem 1rem;
+    box-shadow: 4px 4px 0 var(--ink);
+}
+
+.bot-head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.7rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 2px dashed var(--ink);
+}
+
+.bot-icon {
+    flex-shrink: 0;
+    width: 1.6rem;
+    height: 1.6rem;
+    color: var(--ink);
+}
+
+.bot-name {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.65rem;
+    color: var(--ink);
+}
+
+.bot-line {
+    margin: 0;
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    line-height: 1.25;
+    color: var(--ink);
+    animation: bot-type 0.5s steps(20, end) both;
+    animation-delay: calc(var(--l, 0) * 0.35s);
+}
+
+@keyframes bot-type {
+    from { clip-path: inset(0 100% 0 0); }
+    to { clip-path: inset(0 0 0 0); }
+}
+
+.bot-static .bot-line {
+    animation: none;
+}
+
+@media (max-width: 768px) {
+    .bot-panel {
+        padding: 0.7rem;
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .bot-line {
+        font-size: 1.3rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bot-line {
+        animation: none;
+    }
+}

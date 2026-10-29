@@ -43,8 +43,8 @@ const FEEDS = [
 ];
 
 const FEED_TIMEOUT_MS = Number(process.env.FEED_TIMEOUT_MS) || 3000; // give up on a slow feed after 3 seconds
-const MAX_PER_FEED = 15; // newest stories taken from each feed
-const MAX_TOTAL = 100; // stories sent to the website
+const MAX_PER_FEED = 40; // newest stories taken from each feed
+const MAX_TOTAL = 300; // stories sent to the website
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // ignore anything older than a week
 const SUMMARY_LENGTH = 400;
 const USER_AGENT = 'Mozilla/5.0 (compatible; TechBytesBot/1.0; +https://techbytes-news.netlify.app)';

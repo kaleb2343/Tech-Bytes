@@ -45,7 +45,7 @@ const BLOCKED_WORDS = [
 const CATEGORY_ORDER = ['SECURITY', 'AI', 'GAMING', 'GADGETS'];
 
 // The order the filter buttons appear in
-const FILTER_ORDER = ['ALL', 'AI', 'GAMING', 'GADGETS', 'SECURITY', 'SAVED'];
+const FILTER_ORDER = ['ALL', 'AI', 'GAMING', 'GADGETS', 'SECURITY', 'RECAP', 'SAVED'];
 
 const CATEGORY_KEYWORDS = {
     SECURITY: [
@@ -162,6 +162,10 @@ const CATEGORY_ICONS = {
     SECURITY: [
         '.##########.', '.##########.', '.####..####.', '.###....###.', '.####..####.',
         '.####..####.', '..########..', '...######...', '....####....', '.....##.....',
+    ],
+    RECAP: [
+        '.....#.....#', '....##....##', '...###...###', '..####..####',
+        '...###...###', '....##....##', '.....#.....#',
     ],
     SAVED: HEART_FILLED,
 };
@@ -410,6 +414,66 @@ function makeIcon(rows, className) {
     return svg;
 }
 
+/* ---------- recap: yesterday's stories + the little bot ---------- */
+
+// True when the story was published yesterday (the visitor's own calendar day)
+function isYesterday(item) {
+    const time = new Date(item.published).getTime();
+    if (Number.isNaN(time)) return false;
+    const startToday = new Date();
+    startToday.setHours(0, 0, 0, 0);
+    const startYesterday = new Date(startToday);
+    startYesterday.setDate(startYesterday.getDate() - 1);
+    return time >= startYesterday.getTime() && time < startToday.getTime();
+}
+
+// The value that appears most often in a list (a tie goes to the first one found)
+function topCount(values) {
+    const counts = new Map();
+    values.filter(Boolean).forEach((value) => counts.set(value, (counts.get(value) || 0) + 1));
+    let best = null;
+    counts.forEach((n, name) => {
+        if (!best || n > best.n) best = { name, n };
+    });
+    return best;
+}
+
+// The small terminal-style box above the recap stories (built only from the stories, no AI)
+function buildRecapBot(list, animate) {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const dayLabel = yesterday
+        .toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+        .replace(',', '')
+        .toUpperCase();
+    const sources = new Set(list.map((s) => s.source).filter(Boolean));
+    const channel = topCount(list.map((s) => s.category));
+    const source = topCount(list.map((s) => s.source));
+
+    const lines = [
+        `RECAP: ${dayLabel}`,
+        `${list.length} ${list.length === 1 ? 'STORY' : 'STORIES'} FROM ${sources.size} ${sources.size === 1 ? 'SOURCE' : 'SOURCES'}`,
+    ];
+    if (channel) lines.push(`BUSIEST CHANNEL: ${channel.name} (${channel.n})`);
+    if (source) lines.push(`MOST ACTIVE SOURCE: ${source.name} (${source.n})`);
+
+    const panel = el('div', animate ? 'bot-panel col-span-full' : 'bot-panel bot-static col-span-full');
+    panel.setAttribute('role', 'note');
+    const head = el('div', 'bot-head');
+    head.appendChild(makeIcon(CATEGORY_ICONS.AI, 'bot-icon'));
+    head.appendChild(el('span', 'bot-name', 'TECH BOT'));
+    panel.appendChild(head);
+    lines.forEach((text, index) => {
+        const line = el('p', 'bot-line', `> ${text}`);
+        line.style.setProperty('--l', index);
+        panel.appendChild(line);
+    });
+    const cursor = el('p', 'bot-line blink', '> ');
+    cursor.style.setProperty('--l', lines.length);
+    panel.appendChild(cursor);
+    return panel;
+}
+
 /* ---------- search ---------- */
 
 function matchesSearch(item) {
@@ -424,6 +488,7 @@ function matchesSearch(item) {
 function getVisibleStories() {
     let list;
     if (activeCategory === 'SAVED') list = savedStories;
+    else if (activeCategory === 'RECAP') list = currentNews.filter(isYesterday);
     else if (activeCategory === 'ALL') list = currentNews;
     else list = currentNews.filter((item) => item.category === activeCategory);
     return searchQuery ? list.filter(matchesSearch) : list;
@@ -547,6 +612,7 @@ function renderFilterBar() {
         let count;
         if (category === 'ALL') count = currentNews.length;
         else if (category === 'SAVED') count = savedStories.length;
+        else if (category === 'RECAP') count = currentNews.filter(isYesterday).length;
         else count = currentNews.filter((item) => item.category === category).length;
 
         // no empty category buttons (ALL and SAVED always show)
@@ -572,7 +638,9 @@ function showCurrent(animate = true) {
     if (
         activeCategory !== 'ALL' &&
         activeCategory !== 'SAVED' &&
-        !currentNews.some((item) => item.category === activeCategory)
+        !(activeCategory === 'RECAP'
+            ? currentNews.some(isYesterday)
+            : currentNews.some((item) => item.category === activeCategory))
     ) {
         activeCategory = 'ALL';
     }
@@ -586,6 +654,9 @@ function showCurrent(animate = true) {
     searchClear.hidden = !searchQuery;
     const withFeatured = activeCategory === 'ALL' && !searchQuery && list.length >= 4;
     renderNews(list, animate, withFeatured);
+    if (activeCategory === 'RECAP' && !searchQuery && list.length > 0) {
+        newsContainer.prepend(buildRecapBot(list, animate));
+    }
 }
 
 // A grey-block "page" that shows where the stories will appear
