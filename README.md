@@ -115,7 +115,7 @@ The look is a monochrome handheld palette with sharp corners, 2px borders and st
               
 All colors are CSS variables, so night mode is a single attribute switch on the page.
 
-## Decisions and trade-offs
+## Decisions and trade-offs 
 
 - **RSS instead of a news API.** The first version used NewsAPI. Its free plan delays stories by about a day, limits requests, and is intended for development. Reading publishers' own feeds gives minute-fresh stories with no key and no quota.
 - **No framework.** The interface is small and mostly static, so plain JavaScript keeps the page light, easy to read and free of build tooling.
