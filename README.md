@@ -35,6 +35,7 @@ It is built with plain HTML, CSS and JavaScript. There is no framework and no bu
 **Reading**
 - **Fresh news.** About 28 RSS and Atom feeds, mixed and sorted newest first, with real times such as "16M AGO".
 - **Four channels.** AI, Gaming, Gadgets and Security, each with a pixel icon and a live count. A story that fits none of them is dropped, so the feed stays on topic.
+- **Recap.** One tap on RECAP shows everything published yesterday, newest first, with a live count. It opens with a small Tech Bot box that sums up the day from the stories themselves: the date, how many stories from how many sources, the busiest channel and the most active source. No AI service or key is involved.
 - **Search.** Type to filter instantly, across all channels or inside one.
 - **Top story.** The newest story with a summary gets a large inverted card.
 - **Load more.** 18 stories per page on computers and tablets, 12 on phones.
@@ -63,9 +64,9 @@ flowchart LR
     C <--> D[("localStorage<br/>saved stories, last news, theme")]
 ```
 
-1. **The function** (`netlify/functions/fetch-news.js`) requests every feed in parallel with a 3-second timeout per feed. It parses RSS and Atom without any dependency, keeps the newest 15 items per feed from the last 7 days, removes repeated links, and returns up to 100 stories sorted newest first.
+1. **The function** (`netlify/functions/fetch-news.js`) requests every feed in parallel with a 3-second timeout per feed. It parses RSS and Atom without any dependency, keeps the newest 40 items per feed from the last 7 days, removes repeated links, and returns up to 300 stories sorted newest first.
 2. **Netlify's CDN** keeps that answer for 5 minutes and serves a slightly old copy for up to 15 more minutes while it refreshes, so visitors rarely wait on the feeds.
-3. **The page** (`app.js`) cleans titles and summaries, sorts each story into a channel, drops spam and off-topic items, merges near-duplicates, and renders the cards. It checks for new stories every 10 minutes and only redraws when something changed.
+3. **The page** (`app.js`) cleans titles and summaries, sorts each story into a channel, drops spam and off-topic items, merges near-duplicates, and renders the cards. It builds the recap from the stories published on the visitor's own previous calendar day. It checks for new stories every 10 minutes and only redraws when something changed.
 
 ### Health check
 
@@ -121,6 +122,7 @@ All colors are CSS variables, so night mode is a single attribute switch on the 
 - **Pre-built Tailwind.** The Tailwind CDN script is meant for prototyping, so the few utilities actually used are compiled into `tailwind.css`. Custom components use their own classes.
 - **Keyword channels instead of machine learning.** Word lists are free, instant, predictable and easy to edit. The cost is occasional mis-sorting, and the lists are meant to be tuned.
 - **Near-duplicate detection by headline words.** Cheap and effective for reposts of the same story. It can miss a duplicate worded very differently, and it is deliberately not stricter, because looser matching would merge stories that are genuinely different.
+- **A recap without AI.** The Tech Bot box is built from counts over the stories already on the page: no AI service, no key, no cost, and it can never state something that is not in the news. The trade-off is that it reports facts about the day rather than writing a summary.
 - **Saved copy plus CDN stale-while-revalidate.** Together they keep both first and repeat visits fast without a database.
 
 ## Limitations
@@ -128,6 +130,7 @@ All colors are CSS variables, so night mode is a single attribute switch on the 
 - Feeds can move, change format or block servers. The function skips a failing feed, and the health check shows which one.
 - Summaries come from each publisher's feed, so their length and quality vary.
 - Saved stories are stored in the browser, so they do not sync between devices.
+- The recap only covers stories still present in the feeds (up to 300 from the last 7 days), so a very quiet day can look short. "Yesterday" follows each visitor's own time zone.
 - The feed parser is intentionally lightweight, not a full XML parser.
 
 ## Attribution
@@ -136,7 +139,7 @@ Tech Bytes does not host or copy articles. It shows headlines and short summarie
 
 ## Ideas for later
 
-- A Game Boy-style screen frame around the news, with a power light that shows when the news last updated.
+- A day picker to browse any of the last seven days, built on the same idea as RECAP.
 - Shareable filter and search links.
 - Choosing which sources to follow.
 
