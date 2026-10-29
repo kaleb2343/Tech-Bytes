@@ -47,7 +47,7 @@ const MAX_PER_FEED = 15; // newest stories taken from each feed
 const MAX_TOTAL = 100; // stories sent to the website
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // ignore anything older than a week
 const SUMMARY_LENGTH = 400;
-const USER_AGENT = 'Mozilla/5.0 (compatible; TechBytesBot/1.0; +https://tech-byte-news.netlify.app)';
+const USER_AGENT = 'Mozilla/5.0 (compatible; TechBytesBot/1.0; +https://techbytes-news.netlify.app)';
 
 const jsonHeaders = {
     'Content-Type': 'application/json',
