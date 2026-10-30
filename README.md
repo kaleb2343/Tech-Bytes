@@ -101,7 +101,7 @@ Tech-Bytes/
 ├── LICENSE
 └── README.md
 ``` 
-                         
+                          
 ## Design system
 
 The look is a monochrome handheld palette with sharp corners, 2px borders and stepped (not smooth) animation.
