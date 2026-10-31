@@ -84,7 +84,7 @@ Open `/.netlify/functions/fetch-news?debug=1` on the site. It lists every feed w
 | Data | Public RSS and Atom feeds, no API key |
 
 ## Project structure
-                      
+                       
 ```
 Tech-Bytes/
 ├── index.html                  Page structure, share preview tags, theme script
