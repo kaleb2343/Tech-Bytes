@@ -73,7 +73,7 @@ flowchart LR
 Open `/.netlify/functions/fetch-news?debug=1` on the site. It lists every feed with whether it worked, how many stories it gave, its newest story, and how long it took.
 
 ## Tech stack
-     
+      
 | Area | Choice |
 | --- | --- |
 | Front end | HTML, CSS and vanilla JavaScript (ES modules), no framework |
