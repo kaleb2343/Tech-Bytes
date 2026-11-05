@@ -62,7 +62,7 @@ flowchart LR
     A["~28 RSS / Atom feeds"] --> B["Netlify Function<br/>fetch-news.js"]
     B -->|"JSON, cached 5 min"| C["Browser<br/>index.html + app.js"]
     C <--> D[("localStorage<br/>saved stories, last news, theme")]
-``` 
+```  
                                    
 1. **The function** (`netlify/functions/fetch-news.js`) requests every feed in parallel with a 3-second timeout per feed. It parses RSS and Atom without any dependency, keeps the newest 40 items per feed from the last 7 days, removes repeated links, and returns up to 300 stories sorted newest first.
 2. **Netlify's CDN** keeps that answer for 5 minutes and serves a slightly old copy for up to 15 more minutes while it refreshes, so visitors rarely wait on the feeds.
